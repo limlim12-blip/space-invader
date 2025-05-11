@@ -16,9 +16,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -41,6 +44,7 @@ public class SpaceShooter extends Application {
     
     List<Enemy> enemies;
     List<Bullet> bullets;
+
     // TODO: Declare UI labels, lists of GameObjects, player, root Pane, Scene, Stage
 
     public static void main(String[] args) {
@@ -56,13 +60,15 @@ public class SpaceShooter extends Application {
         player = new Player(WIDTH / 2, HEIGHT - 40);
         Canvas canvas = new Canvas(WIDTH,HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();        
-        StackPane root = new StackPane();
-        root.getChildren().add(canvas);
-        // Scene scene = new Scene(root);
-        // initEventHandlers(scene);
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root);
+        // initEventHandlers(canvas);
+        scene.setOnKeyPressed(event->handleKeyPress(event));
+        scene.setOnKeyReleased(event->handleKeyRelease(event));
         primaryStage.setTitle("SPACE-INVADER");
-        primaryStage.setScene(new Scene(root));
+        primaryStage.setScene(scene);
         primaryStage.show();
+        scene.getRoot().requestFocus();
         gameloop(gc);
         
         
@@ -86,31 +92,47 @@ public class SpaceShooter extends Application {
                     gameupdate(elapsedTime);
                     gamerender(gc);
                 }
-                lastUpdate = now;
+                    lastUpdate = now;
             }
         };
         timer.start();
         
     }
-
+    
     protected void gamerender(GraphicsContext gc) {
+        gc.setFill(Color.grayRgb(20));
+		gc.fillRect(0, 0, WIDTH, HEIGHT);
+		gc.setTextAlign(TextAlignment.LEFT);
+		gc.setFont(Font.font(20));
+		gc.setFill(Color.WHITE);
+		gc.fillText("Score: " + score+"     health:"+player.getHealth(), 60,  20);
         player.render(gc);
-        spawnEnemy();
-        for (Enemy obj : enemies) {
-            obj.render(gc);
+        for (int i = enemies.size() - 1; i >= 0; i--) {
+            enemies.get(i).render(gc);
         }
+        for (int i=bullets.size()-1; i>=0;i--) {
+            bullets.get(i).render(gc);
+            if (bullets.get(i).isDead())
+            bullets.remove(i);
+        }
+        
     }
-
+    
     protected void gameupdate(double elapsedTime) {
         player.update();
-        for (Enemy obj : enemies) {
-            obj.update();
+        for (Enemy enemy : enemies) {
+            enemy.update();
+        }
+        for (Bullet bullet : bullets) {
+            bullet.update();
         }
         checkCollisions();
+        checkEnemiesReachingBottom();
+        spawnEnemy(score);
     }
 
-    private void spawnEnemy() {
-        if (Math.random() < 0.05) {
+    private void spawnEnemy(double elapsedTime) {
+        if (Math.random() < 0.01*score+0.05) {
             enemies.add(new Enemy(Math.random() * 800, 0));
         }
 
@@ -126,15 +148,21 @@ public class SpaceShooter extends Application {
 
     private void checkCollisions() {
         // TODO: detect and handle collisions between bullets, enemies, power-ups, player
+        for (Enemy enemy : enemies) {
+            if(player.getBounds().intersects(enemy.getBounds())){
+                player.setHealth(player.getHealth()-1);
+                enemy.setDead(true);
+            }
+        }
     }
 
     private void checkEnemiesReachingBottom() {
-        List<Enemy> remove=new ArrayList<>();
-        for (Enemy obj : enemies) {
-            if(obj.getY()>800)
-                remove.add(obj);
+        for (Enemy enemy:enemies){
+            if(enemy.getY()>800)
+                player.setHealth(player.getHealth()-1);
+                enemy.setDead(true);;
+
         }
-        // TODO: handle enemies reaching bottom of screen (reduce lives, respawn, reset game)
     }
 
     // UI and game state methods
@@ -151,10 +179,10 @@ public class SpaceShooter extends Application {
         // TODO: stop game loop and call showLosingScreen
     }
 
-    private void initEventHandlers(Scene scene) {
+    private void initEventHandlers(Canvas canvas) {
         
-        scene.setOnKeyPressed(event->handleKeyPress(event));
-        scene.setOnKeyReleased(event->handleKeyRelease(event));
+        canvas.setOnKeyPressed(event->handleKeyPress(event));
+        canvas.setOnKeyReleased(event->handleKeyRelease(event));
         // TODO: set OnKeyPressed and OnKeyReleased for movement and shooting
     }
 
@@ -179,7 +207,7 @@ public class SpaceShooter extends Application {
         if(event.getCode()==KeyCode.LEFT) player.setMoveLeft(true);
         else if(event.getCode()==KeyCode.RIGHT) player.setMoveRight(true);
         else if(event.getCode()==KeyCode.UP) player.setMoveForward(true);
-        else if(event.getCode()==KeyCode.DOWN) player.setMoveBackward(false);
+        else if(event.getCode()==KeyCode.DOWN) player.setMoveBackward(true);
         else if(event.getCode()==KeyCode.SPACE) player.shoot(bullets);
     }
     private void handleKeyRelease(KeyEvent event) {

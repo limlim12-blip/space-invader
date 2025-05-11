@@ -31,7 +31,7 @@ public class Enemy extends GameObject {
      */
     public Enemy(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        dead = false;
+        setDead(false);
         // TODO: load sprite if needed and initialize dead flag
     }
 
@@ -51,7 +51,11 @@ public class Enemy extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
+        if (isDead())
+            gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
+        else
+            gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
+
         // TODO: draw sprite or fallback shape (e.g., colored rectangle)
     }
     

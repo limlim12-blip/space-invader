@@ -25,6 +25,7 @@ public class Bullet extends GameObject {
      */
     public Bullet(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
+        dead = false;
         // TODO: initialize dead flag if needed
     }
 
@@ -34,6 +35,7 @@ public class Bullet extends GameObject {
     @Override
     public void update() {
         // TODO: move bullet vertically by SPEED
+        y -= SPEED;
     }
 
     /**

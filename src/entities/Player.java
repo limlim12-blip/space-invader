@@ -30,8 +30,7 @@ public class Player extends GameObject{
     private int health;
 
     // State flag for removal
-    private boolean dead=false;
-    boolean collision=false;
+    private boolean dead;
 
     
     /**
@@ -40,26 +39,38 @@ public class Player extends GameObject{
     @Override
     public void update() {
         // TODO: implement movement with SPEED and screen bounds
-        if (moveLeft) x -= 5; 
-        else if(moveLeft&&x<0) x=0;
-        if (moveRight) x += SPEED; 
-        else if (moveRight && x > SpaceShooter.WIDTH) x = SpaceShooter.WIDTH;
-        if (moveBackward) y += SPEED;
-        else if(moveBackward&&y<SpaceShooter.HEIGHT/2) y=SpaceShooter.HEIGHT/2;
-        if (moveForward) y -= SPEED;
-        else if (moveRight && x > SpaceShooter.HEIGHT) y = SpaceShooter.HEIGHT;
+        if (moveLeft) {
+            if (x < 10)
+                x = 0; 
+            else x -= SPEED;
+        }
+        if (moveRight) {
+            if (x > SpaceShooter.WIDTH-43)
+                x = SpaceShooter.WIDTH-40;
+            else x += SPEED;
+        }
+        if (moveBackward) {
+            if (y > SpaceShooter.HEIGHT-43)
+                y = SpaceShooter.HEIGHT-40;
+            else y += SPEED;
+        }
+        if (moveForward) {
+            if (y <SpaceShooter.HEIGHT/3*2.4+3)
+                y = SpaceShooter.HEIGHT/3*2.4;
+            else y -= SPEED;
+        }
     }
     
-    public boolean collision(GameObject other) {
-        return this.getBounds().intersects(other.getBounds());
-    }
     /**
      * Renders the player on the canvas.
      */
     @Override
     public void render(GraphicsContext gc) {
         // TODO: draw sprite or placeholder shape
-        gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
+        if (isDead())
+            gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
+        else
+            gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
     }
     
     /**
@@ -110,7 +121,6 @@ public class Player extends GameObject{
      * Marks the player as dead.
      */
     public void setDead(boolean dead) {
-        // TODO: update dead flag
         
         this.dead = dead;
     }
@@ -119,7 +129,6 @@ public class Player extends GameObject{
      */
     @Override
     public boolean isDead() {
-        // TODO: return dead flag
         return dead;
         
     }
