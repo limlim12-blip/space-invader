@@ -18,7 +18,8 @@ public class Player extends GameObject{
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/res/player.png"));
     // Movement speed
     private static final double SPEED = 5;
-
+    public int FireRate;
+    public int FIRE_RATE=15;
 
     // Movement flags
     private boolean moveLeft;
@@ -31,6 +32,7 @@ public class Player extends GameObject{
 
     // State flag for removal
     private boolean dead;
+    boolean shooting=false;
 
     
     /**
@@ -38,7 +40,6 @@ public class Player extends GameObject{
      */
     @Override
     public void update() {
-        // TODO: implement movement with SPEED and screen bounds
         if (moveLeft) {
             if (x < 10)
                 x = 0; 
@@ -59,6 +60,7 @@ public class Player extends GameObject{
                 y = SpaceShooter.HEIGHT/3*2.4;
             else y -= SPEED;
         }
+        FireRate--;
     }
     
     /**
@@ -66,42 +68,46 @@ public class Player extends GameObject{
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw sprite or placeholder shape
         if (isDead())
             gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
         else
             gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
     }
-    
+    public void Powerup() {
+        FIRE_RATE -=2;
+    }
     /**
      * Sets movement flags.
      */
     public void setMoveLeft(boolean moveLeft) {
-        // TODO: update moveLeft flag
         this.moveLeft = moveLeft;
     }
     
     public void setMoveRight(boolean moveRight) {
-        // TODO: update moveRight flag
         this.moveRight = moveRight;
     }
     
     public void setMoveForward(boolean moveForward) {
-        // TODO: update moveForward flag
+        
         this.moveForward = moveForward;
     }
     
     public void setMoveBackward(boolean moveBackward) {
-        // TODO: update moveBackward flag
+        
         this.moveBackward = moveBackward;
+    }
+    public void setShooting(boolean shooting) {
+        this.shooting = shooting;
     }
     
     /**
      * Shoots a bullet from the player.
      */
     public void shoot(List<Bullet> bullets) {
-        // TODO: create and add new Bullet at (x, y - HEIGHT/2)
-        bullets.add(new Bullet(x, y-HEIGHT/2));
+        if(FireRate<=0){
+            bullets.add(new Bullet(x+WIDTH/2-4, y - HEIGHT / 2));
+            FireRate = FIRE_RATE;
+        }
     }
     
     
@@ -115,7 +121,7 @@ public class Player extends GameObject{
         super(x, y, WIDTH, HEIGHT);
         setHealth(10);
         setDead(false);
-        // TODO: initialize health, dead flag, load sprite if needed
+        
     }
     /**
      * Marks the player as dead.

@@ -1,7 +1,10 @@
 package entities;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+
 import java.util.List;
+import java.util.Random;
 
 /**
  * Skeleton for BossEnemy. Students must implement behavior
@@ -18,7 +21,7 @@ public class BossEnemy extends Enemy {
 
     // Horizontal movement speed
     private double horizontalSpeed;
-
+    static final Image BOSS_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/boss.png"));
     /**
      * Constructs a BossEnemy at the given coordinates.
      * @param x initial X position
@@ -26,7 +29,7 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        // TODO: initialize health, speeds, and load resources
+        setHealth(50);
     }
 
     /**
@@ -34,22 +37,26 @@ public class BossEnemy extends Enemy {
      */
     @Override
     public void update() {
-        // TODO: implement vertical and horizontal movement
+        y += 2;
     }
+
 
     /**
      * Inflicts damage to the boss.
      */
     public void takeDamage() {
         // TODO: decrement health, mark dead when <= 0
+        health--;
+        if(health<0) setDead(true);
     }
 
     /**
      * Boss fires bullets towards the player.
      * @param newObjects list to which new bullets are added
      */
-    public void shoot(List<GameObject> newObjects) {
+    public void shoot(List<EnemyBullet> newObjects) {
         // TODO: implement shooting logic (spawn EnemyBullet)
+            newObjects.add(new EnemyBullet(x+WIDTH/2-4, y - HEIGHT / 2));
     }
 
     /**
@@ -59,5 +66,12 @@ public class BossEnemy extends Enemy {
     @Override
     public void render(GraphicsContext gc) {
         // TODO: draw boss sprite or placeholder
+            gc.drawImage(BOSS_IMAGE, x, y,WIDTH,HEIGHT);
+    }
+    public int getHealth() {
+        return health;
+    }
+    public void setHealth(int health) {
+        this.health = health;
     }
 }

@@ -1,7 +1,6 @@
 package entities;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -18,11 +17,15 @@ public class Enemy extends GameObject {
 
     ArrayList<Enemy> enemies=new ArrayList<>();
     static final Image ENEMY_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/enemy.png"));
+    static final Image EXPLOSION_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/explosion.png"));
     // Movement speed
-    public static double SPEED = 1;
+    public static double SPEED = 5;
 
+    
     // Flag to indicate if enemy should be removed
     private boolean dead;
+    public boolean exploding;
+    public int explosionStep = 0;
 
     /**
      * Constructs an Enemy at the given coordinates.
@@ -32,7 +35,6 @@ public class Enemy extends GameObject {
     public Enemy(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
         setDead(false);
-        // TODO: load sprite if needed and initialize dead flag
     }
 
     /**
@@ -40,9 +42,8 @@ public class Enemy extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: implement vertical movement by SPEED
-         y += SPEED*10;
-        
+        y += SPEED;
+        setDead(explosionStep>=15);
     }
     
     /**
@@ -51,12 +52,17 @@ public class Enemy extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        if (isDead())
-            gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
+        if (exploding) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, WIDTH,
+                    HEIGHT);
+            explosionStep += 1;
+        } 
         else
             gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
 
-        // TODO: draw sprite or fallback shape (e.g., colored rectangle)
+    }
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
     }
     
     /**

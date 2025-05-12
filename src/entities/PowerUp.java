@@ -1,6 +1,7 @@
 package entities;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 /**
  * Skeleton for PowerUp. Students must implement movement,
@@ -15,6 +16,7 @@ public class PowerUp extends GameObject {
     // Fall speed of the power-up
     private static final double SPEED = 2;
 
+    static final Image POWERUP_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/powerup.png"));
     // Flag indicating whether the power-up should be removed
     private boolean dead;
 
@@ -25,7 +27,7 @@ public class PowerUp extends GameObject {
      */
     public PowerUp(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        // TODO: initialize dead flag, load sprite if needed
+        setDead(false);
     }
 
     /**
@@ -33,7 +35,7 @@ public class PowerUp extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: move power-up vertically by SPEED
+        y += SPEED;
     }
 
     /**
@@ -42,7 +44,7 @@ public class PowerUp extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw sprite or fallback (e.g., colored rectangle)
+        gc.drawImage(POWERUP_IMAGE,x,y ,WIDTH, HEIGHT);
     }
 
     /**

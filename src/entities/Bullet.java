@@ -1,6 +1,8 @@
 package entities;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 /**
  * Skeleton for Bullet. Students must implement movement,
@@ -9,15 +11,17 @@ import javafx.scene.canvas.GraphicsContext;
 public class Bullet extends GameObject {
 
     // Width and height of the bullet
-    public static final int WIDTH = 4;
+    public static final int WIDTH = 8;
     public static final int HEIGHT = 15;
 
     // Movement speed of the bullet
     private static final double SPEED = 7;
-
+    public boolean exploding;
+    public int explosionStep = 0;
     // Flag to indicate if bullet should be removed
     private boolean dead;
 
+    static final Image EXPLOSION_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/explosion.png"));
     /**
      * Constructs a Bullet at the given position.
      * @param x initial X position
@@ -25,8 +29,7 @@ public class Bullet extends GameObject {
      */
     public Bullet(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        dead = false;
-        // TODO: initialize dead flag if needed
+        setDead(explosionStep>15);
     }
 
     /**
@@ -34,7 +37,6 @@ public class Bullet extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: move bullet vertically by SPEED
         y -= SPEED;
     }
 
@@ -44,16 +46,26 @@ public class Bullet extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw bullet (e.g., filled rectangle or sprite)
+           if (exploding) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, WIDTH,
+                    HEIGHT);
+            explosionStep += 1;
+        } 
+        else {
+                gc.setFill(Color.rgb(250, 0, 0, 0.3));
+                gc.fillOval(x, y, WIDTH, HEIGHT);
+            }
     }
 
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+    }
     /**
      * Returns current width of the bullet.
      * @return WIDTH
      */
     @Override
     public double getWidth() {
-        // TODO: return bullet width
         return WIDTH;
     }
 
@@ -63,7 +75,6 @@ public class Bullet extends GameObject {
      */
     @Override
     public double getHeight() {
-        // TODO: return bullet height
         return HEIGHT;
     }
 
@@ -72,7 +83,7 @@ public class Bullet extends GameObject {
      * @param dead true if bullet should be removed
      */
     public void setDead(boolean dead) {
-        // TODO: update dead flag
+        this.dead = dead;
     }
 
     /**
@@ -81,7 +92,6 @@ public class Bullet extends GameObject {
      */
     @Override
     public boolean isDead() {
-        // TODO: return dead flag
         return dead;
     }
 }
