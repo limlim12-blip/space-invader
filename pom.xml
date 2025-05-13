@@ -21,6 +21,7 @@
                 <directory>src</directory>
                 <includes>
                     <include>**/*.png</include>
+                    <include>**/*.PNG</include>
                 </includes>
             </resource>
         </resources>
@@ -70,4 +71,3 @@
         </dependency>
     </dependencies>
 </project>
-

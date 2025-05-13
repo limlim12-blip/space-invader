@@ -54,14 +54,16 @@ public class SpaceShooter extends Application {
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         player = new Player(WIDTH / 2, HEIGHT - 40);
-        Canvas canvas = new Canvas(WIDTH,HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();        
-        StackPane root = new StackPane();
-        root.getChildren().add(canvas);
-        // Scene scene = new Scene(root);
-        // initEventHandlers(scene);
+        Canvas canvas = new Canvas(WIDTH, HEIGHT);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root);
         primaryStage.setTitle("SPACE-INVADER");
-        primaryStage.setScene(new Scene(root));
+        startGame();
+        initEventHandlers(scene);
+        scene.setOnKeyPressed(event -> handleKeyPress(event));
+        scene.setOnKeyReleased(event -> handleKeyRelease(event));
+        primaryStage.setScene(scene);
         primaryStage.show();
         gameloop(gc);
         
@@ -77,20 +79,21 @@ public class SpaceShooter extends Application {
     // Game mechanics stubs
     
     private void gameloop(GraphicsContext gc) {
-        AnimationTimer timer= new AnimationTimer() {
+        AnimationTimer timer = new AnimationTimer() {
             long lastUpdate = 0;
+
             @Override
             public void handle(long now) {
-                if (lastUpdate > 0) {
-                    double elapsedTime = (now - lastUpdate) / 1000000000;
+                if (now - lastUpdate >= 20_666_667) {
+                    double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
                     gameupdate(elapsedTime);
                     gamerender(gc);
+                    lastUpdate = now;
                 }
-                lastUpdate = now;
             }
         };
         timer.start();
-        
+
     }
 
     protected void gamerender(GraphicsContext gc) {
@@ -175,17 +178,20 @@ public class SpaceShooter extends Application {
         // TODO: set gameRunning to true and switch to game scene
     }
 
-    private void handleKeyPress(KeyEvent event) {
-        if(event.getCode()==KeyCode.LEFT) player.setMoveLeft(true);
-        else if(event.getCode()==KeyCode.RIGHT) player.setMoveRight(true);
-        else if(event.getCode()==KeyCode.UP) player.setMoveForward(true);
-        else if(event.getCode()==KeyCode.DOWN) player.setMoveBackward(false);
-        else if(event.getCode()==KeyCode.SPACE) player.shoot(bullets);
+  private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.LEFT)
+            player.setMoveLeft(true);
+        if (event.getCode() == KeyCode.RIGHT)player.setMoveRight(true);
+        if (event.getCode() == KeyCode.UP)player.setMoveForward(true);
+        if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(true);
+        if (event.getCode() == KeyCode.SPACE)player.setShooting(true);
     }
+
     private void handleKeyRelease(KeyEvent event) {
-        if(event.getCode()==KeyCode.LEFT) player.setMoveLeft(false);
-        else if(event.getCode()==KeyCode.RIGHT) player.setMoveRight(false);
-        else if(event.getCode()==KeyCode.UP) player.setMoveForward(false);
-        else if(event.getCode()==KeyCode.DOWN) player.setMoveBackward(false);
+        if (event.getCode() == KeyCode.LEFT) player.setMoveLeft(false);
+        if (event.getCode() == KeyCode.RIGHT)player.setMoveRight(false);
+        if (event.getCode() == KeyCode.UP)player.setMoveForward(false);
+        if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(false);
+        if (event.getCode() == KeyCode.SPACE)player.setShooting(false);
     }
 }
