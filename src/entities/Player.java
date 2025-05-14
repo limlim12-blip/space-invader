@@ -15,13 +15,14 @@ public class Player extends GameObject{
     private static final int WIDTH = 40;
     private static final int HEIGHT = 40;
     static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/res/player.png"));
-    static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/res/player.png"));
+    static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/res/damged.PNG"));
+    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/res/explosion.png"));
     // Movement speed
-    private static final double SPEED = 5;
+    private static final double SPEED = 10;
     public int FireRate;
-    public int FIRE_RATE=15;
+    public int FIRE_RATE=2;
 
-    // Movement flags
+    // Movement flags w w
     private boolean moveLeft;
     private boolean moveRight;
     private boolean moveForward;
@@ -33,6 +34,10 @@ public class Player extends GameObject{
     // State flag for removal
     private boolean dead;
     boolean shooting=false;
+    public boolean takingdame;
+    public int takingdamestep;
+    public boolean exploding;
+    public int explosionStep = 0;
 
     
     /**
@@ -43,21 +48,33 @@ public class Player extends GameObject{
         if (moveLeft) {
             if (x < 10)
                 x = 0; 
+            else if(moveBackward||moveForward){
+                x -= (double) SPEED / Math.sqrt(2);
+            }
             else x -= SPEED;
         }
         if (moveRight) {
             if (x > SpaceShooter.WIDTH-43)
                 x = SpaceShooter.WIDTH-40;
+            else if(moveBackward||moveForward){
+                x += (double) SPEED / Math.sqrt(2);
+            }
             else x += SPEED;
         }
         if (moveBackward) {
             if (y > SpaceShooter.HEIGHT-43)
                 y = SpaceShooter.HEIGHT-40;
+            else if(moveLeft||moveRight){
+                y += (double) SPEED / Math.sqrt(2);
+            }
             else y += SPEED;
         }
         if (moveForward) {
-            if (y <SpaceShooter.HEIGHT/3*2.4+3)
-                y = SpaceShooter.HEIGHT/3*2.4;
+            if (y <SpaceShooter.HEIGHT/4+3)
+                y = SpaceShooter.HEIGHT/4;
+            else if(moveLeft||moveRight){
+                y -= (double) SPEED / Math.sqrt(2);
+            }
             else y -= SPEED;
         }
         FireRate--;
@@ -68,13 +85,30 @@ public class Player extends GameObject{
      */
     @Override
     public void render(GraphicsContext gc) {
-        if (isDead())
-            gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
+         if (exploding&&explosionStep<=15) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x-15, y-20, 80, 80);
+            explosionStep += 1;
+        }
+        else setExploding(false);
+        if (takingdame&&takingdamestep<10){
+            gc.drawImage(DAMAGED_IMAGE, x, y, WIDTH, HEIGHT);
+            takingdamestep++;
+        } 
         else
             gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
     }
     public void Powerup() {
-        FIRE_RATE -=2;
+        if(FIRE_RATE>5)
+        FIRE_RATE -=1;
+        setHealth(health+2);
+    }
+    public void setTakingdame(boolean takingdame) {
+        this.takingdame = takingdame;
+        takingdamestep = 0;
+    }
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+        explosionStep = 0;
     }
     /**
      * Sets movement flags.
@@ -119,7 +153,7 @@ public class Player extends GameObject{
      */
     public Player(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        setHealth(10);
+        setHealth(20);
         setDead(false);
         
     }

@@ -5,5 +5,5 @@ module spaceinvader {
     requires javafx.base;
 
     opens entities to javafx.fxml;
-    exports entities;
+    exports  entities;
 }

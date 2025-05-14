@@ -1,32 +1,24 @@
 package entities;
 
-import java.lang.classfile.Signature.TypeArg.Bounded.WildcardIndicator;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-
-import javafx.animation.Animation;
 import javafx.animation.AnimationTimer;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 /**
  * Skeleton for SpaceShooter. Students must implement game loop,
@@ -34,13 +26,12 @@ import javafx.util.Duration;
  */
 public class SpaceShooter extends Application {
 
-    public static final int WIDTH = 350;
+    public static final int WIDTH = 500;
     public static final int HEIGHT = 800;
     public static int numLives = 3;
-    private boolean bossExists;
+    private boolean bossExists=false;
     private int score;
     private boolean reset;
-    private boolean levelUpShown;
     private boolean gameRunning;
     private boolean gameOver;
     private Player player;
@@ -49,28 +40,24 @@ public class SpaceShooter extends Application {
     List<Bullet> bullets;
     List<PowerUp> up;   
     BossEnemy boss;
+    List<EnemyBullet> eBullets;
+    List<satellite> moon;
     // TODO: Declare UI labels, lists of GameObjects, player, root Pane, Scene, Stage
 
     public static void main(String[] args) {
         launch(args);
     }
 
+    Canvas canvas = new Canvas(WIDTH, HEIGHT);
+    GraphicsContext gc = canvas.getGraphicsContext2D();
+    Stage window;
     @Override
     public void start(Stage primaryStage) throws Exception {
         // This is where you add scenes, layouts, and widgets
-        Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
-        StackPane root = new StackPane(canvas);
-        Scene scene = new Scene(root);
-        primaryStage.setTitle("SPACE-INVADER");
-        startGame();
-        initEventHandlers(scene);
-        scene.setOnKeyPressed(event -> handleKeyPress(event));
-        scene.setOnKeyReleased(event -> handleKeyRelease(event));
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        scene.getRoot().requestFocus();
-        gameloop(gc);
+        window = primaryStage;
+        window.setTitle("SPACE-INVADER");
+        window.setScene(new Scene(createMenu()));
+        window.show();
 
         // TODO: initialize primaryStage, scene, canvas, UI labels, root pane
         // TODO: set up event handlers
@@ -88,8 +75,12 @@ public class SpaceShooter extends Application {
 
             @Override
             public void handle(long now) {
-                if (now - lastUpdate >= 16_666_667) {
+                if (now - lastUpdate >= 20_666_667) {
                     double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
+                    if (player.getHealth() <= 0) {
+                        gameOver = true;
+                        showLosingScreen();
+                    }
                     gameupdate(elapsedTime);
                     gamerender(gc);
                     lastUpdate = now;
@@ -124,48 +115,78 @@ public class SpaceShooter extends Application {
     }
     if(!up.isEmpty())
     up.get(0).render(gc);
-    if(bossExists) boss.render(gc);
+    if (bossExists && boss != null) {
+        boss.render(gc);
+            for (int i = eBullets.size()-1; i >= 0; i--) {
+                eBullets.get(i).render(gc);
+            }
+            for (int i = moon.size()-1; i >= 0; i--) {
+                moon.get(i).render(gc);
+            }
+    }
         
     }
     
     protected void gameupdate(double elapsedTime) {
-        if (score == 3) {
-            spawnBossEnemy();
+        if (!gameOver) {
+            if (score == 1 && !bossExists) {
+                spawnBossEnemy();
+            }
+            player.update();
+            if (player.shooting)
+                player.shoot(bullets);
+            checkCollisions();
+            checkEnemiesReachingBottom();
+            if (!bossExists)
+                spawnEnemy();
+            spawnPowerUp();
+            if (up == null)
+                spawnPowerUp();
+            for (int i = enemies.size() - 1; i >= 0; i--) {
+                enemies.get(i).update();
+                if (enemies.get(i).isDead())
+                    enemies.remove(i);
+            }
+            for (int i = bullets.size() - 1; i >= 0; i--) {
+                bullets.get(i).update();
+                if (bullets.get(i).isDead())
+                    bullets.remove(i);
+            }
+            if (!up.isEmpty()) {
+                up.get(0).update();
+                if (up.get(0).isDead())
+                    up.remove(0);
+            }
+            if (bossExists && boss != null) {
+                boss.update();
+                if (boss.health == 40 && moon.size() < 2)
+                    boss.phase(moon, 2);
+                if (boss.health == 30 && moon.size() < 4)
+                    boss.phase(moon, 4);
+                if (boss.health == 20 && moon.size() < 6)
+                    boss.phase(moon, 6);
+                if (boss.health == 10 && moon.size() < 10)
+                    boss.phase(moon, 10);
+                boss.shoot(eBullets);
+                for (int i = eBullets.size() - 1; i >= 0; i--) {
+                    eBullets.get(i).update();
+                }
+                for (int i = moon.size() - 1; i >= 0; i--) {
+                    moon.get(i).up(boss);
+                }
+            }
         }
-        player.update();
-        if (player.shooting) player.shoot(bullets);
-        checkCollisions();
-        checkEnemiesReachingBottom();
-        if(!bossExists) spawnEnemy();
-        spawnPowerUp();
-        if(up==null) spawnPowerUp();
-        for (int i = enemies.size() - 1; i >= 0; i--) {
-            enemies.get(i).update();
-            if (enemies.get(i).isDead())
-                enemies.remove(i);
-        }
-        for (int i = bullets.size() - 1; i >= 0; i--) {
-            bullets.get(i).update();
-            if (bullets.get(i).isDead())
-                bullets.remove(i);
-        }
-        if(!up.isEmpty()){
-            up.get(0).update();
-            if (up.get(0).isDead())
-                up.remove(0);
-        }
-        if(bossExists) boss.update();
     }
 
     private void spawnEnemy() {
-        if (Math.random() < 0.005 * score + 0.05) {
-            enemies.add(new Enemy(new Random().nextInt(325) + 2, 0));
+        if (Math.random() < 0.0015 * score + 0.01) {
+            enemies.add(new Enemy(new Random().nextInt(470) + 2, 0));
         }
 
     }
 
     private void spawnPowerUp() {
-        if ((score+1)%5==0&&up.isEmpty()) {
+        if ((score+1)%3==0&&up.isEmpty()) {
             up.add(new PowerUp(new Random().nextInt(325) + 2, new Random().nextInt(50) + 600));
         }
     }
@@ -174,16 +195,19 @@ public class SpaceShooter extends Application {
         for (int i = enemies.size() - 1; i >= 0; i--) {
             enemies.get(i).setExploding(true);
         }
-        boss = new BossEnemy(WIDTH, HEIGHT);
+        boss = new BossEnemy(0, 0);
+        eBullets = new ArrayList<>();
+        moon = new ArrayList<>();
         bossExists = true;
     }
 
     private void checkCollisions() {
-        // TODO: detect and handle collisions between bullets, enemies, power-ups, player
         for (Enemy enemy : enemies) {
             if (player.getBounds().intersects(enemy.getBounds())) {
-                if (!enemy.exploding)
+                if (!enemy.exploding) {
                     player.setHealth(player.getHealth() - 1);
+                    player.setTakingdame(true);
+                }
                 enemy.setExploding(true);
             }
 
@@ -198,25 +222,84 @@ public class SpaceShooter extends Application {
                 }
             }
         }
-        if(!up.isEmpty()) {
-            for (int i = bullets.size() - 1; i >= 0;i--) {
+        if (!up.isEmpty()) {
+            for (int i = bullets.size() - 1; i >= 0; i--) {
                 if (bullets.get(i).getBounds().intersects(up.get(0).getBounds())) {
-                    up.get(0).setDead(true);;
+                    up.get(0).setDead(true);
+                    ;
                     bullets.get(i).setDead(true);
                     player.Powerup();
-                    
+                    score++;
+
                 }
             }
             if (player.getBounds().intersects(up.get(0).getBounds())) {
                 player.Powerup();
-                    up.get(0).setDead(true);;
+                score++;
+                up.get(0).setDead(true);
+                ;
             }
+        }
+        if (bossExists) {
+            for (Bullet bullet : bullets) {
+                if (bullet.getBounds().intersects(boss.getBounds())) {
+                    if (!bullet.exploding) {
+                        score++;
+                        bullet.setExploding(true);
+                        boss.takeDamage();
+                    }
+                    bullet.setExploding(true);
+
+                }
+                for (int i = eBullets.size() - 1; i >= 0; i--) {
+                    if (bullet.getBounds().intersects(eBullets.get(i).getBounds())) {
+                        if (!bullet.exploding) {
+                            bullet.setExploding(true);
+                            eBullets.remove(i);
+                            score++;
+                        }
+                    }
+                }
+
+            }
+            for (int i = eBullets.size() - 1; i >= 0; i--) {
+                if (player.getBounds().intersects(eBullets.get(i).getBounds())) {
+                    if (!eBullets.get(i).exploding) {
+                        eBullets.get(i).setExploding(true);
+                        player.setHealth(player.getHealth() - 1);
+                        player.setTakingdame(true);
+                    }
+                }
+            }
+            if (player.getBounds().intersects(boss.getBounds())&&!player.exploding) {
+                player.setHealth(player.getHealth() - 3);
+                player.setTakingdame(true);
+                player.setExploding(true);
+            }
+            for (int i = moon.size() - 1; i >= 0; i--) {
+                if (player.getBounds().intersects(moon.get(i).getBounds())) {
+                    if (!player.exploding) {
+                        player.setHealth(player.getHealth() - 1);
+                        player.setTakingdame(true);
+                        player.setExploding(true);
+                    }
+                }
+                for (Bullet bullet : bullets) {
+                    if (!moon.get(i).exploding) {
+                        if (moon.get(i).getBounds().intersects(bullet.getBounds())) {
+                            moon.get(i).setExploding(true);
+                            bullet.setExploding(true);
+                        }
+                    }
+                }
+            }
+
         }
     }
 
     private void checkEnemiesReachingBottom() {
         for (int i = enemies.size() - 1; i >= 0; i--) {
-            if (enemies.get(i).getY() > 800){
+            if (enemies.get(i).getY() > 830){
                 player.setHealth(player.getHealth() - 1);
                 enemies.remove(i);
             }
@@ -230,12 +313,35 @@ public class SpaceShooter extends Application {
         if (!up.isEmpty()&&up.get(0).getY() > 800) {
             up.remove(0);
         }
+        if (eBullets != null) {
+            for (int i = eBullets.size() - 1; i >= 0; i--) {
+                if (eBullets.get(i).getY() > 800) {
+                    eBullets.remove(i);
+                }
+
+            }
+        }
     }
 
     // UI and game state methods
 
     private void showLosingScreen() {
         // TODO: display Game Over screen with score and buttons
+        Pane losing = new StackPane(canvas);
+        String a = score + "";
+        Label label = new Label(a);
+        Button restartButton = new Button("restartGame");
+        restartButton.setOnAction(event -> {
+            restartGame();
+        });
+
+        Button resetButton = new Button("resetGame");
+        resetButton.setOnAction(event -> {
+            resetGame();
+        });
+        losing.getChildren().addAll(label, resetButton,restartButton);
+        Scene scene = new Scene(losing);
+        window.setScene(scene);
     }
 
     private void restartGame() {
@@ -255,7 +361,15 @@ public class SpaceShooter extends Application {
 
     private Pane createMenu() {
         // TODO: build and return main menu pane with styled buttons
-        return new Pane();
+        Pane menu = new StackPane(canvas);
+        Label label = new Label("label");
+        Button playButton = new Button("Start Game");
+        playButton.setOnAction(event -> {
+            startGame();
+        });
+
+        menu.getChildren().addAll(label, playButton);
+        return menu;
     }
 
     private void showInstructions() {
@@ -267,11 +381,18 @@ public class SpaceShooter extends Application {
     }
 
     private void startGame() {
+        StackPane root = new StackPane(canvas);
+        Scene gameScene = new Scene(root);
+        initEventHandlers(gameScene);
+        window.setScene(gameScene);
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         up = new ArrayList<>();
+        score = 0;
+        gameOver = false;
         player = new Player(WIDTH / 2, HEIGHT - 40);
-        // TODO: set gameRunning to true and switch to game scene
+        window.show();
+        gameloop(gc);
     }
 
     private void handleKeyPress(KeyEvent event) {

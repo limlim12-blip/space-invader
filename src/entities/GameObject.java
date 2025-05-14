@@ -68,8 +68,8 @@ public abstract class GameObject {
     public Bounds getBounds() {
         // Provided by engine; do not modify
         return new javafx.scene.shape.Rectangle(
-            x - getWidth() / 2,
-            y - getHeight() / 2,
+            x,
+            y,
             getWidth(),
             getHeight()
         ).getBoundsInLocal();

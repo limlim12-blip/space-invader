@@ -1,4 +1,9 @@
-c:\Users\lamph\OneDrive\Desktop\spaceinvader\src\main\java\spaceinvader\PrimaryController.java
-c:\Users\lamph\OneDrive\Desktop\spaceinvader\src\main\java\spaceinvader\App.java
-c:\Users\lamph\OneDrive\Desktop\spaceinvader\src\main\java\module-info.java
-c:\Users\lamph\OneDrive\Desktop\spaceinvader\src\main\java\spaceinvader\SecondaryController.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\SpaceShooter.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\Enemy.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\EnemyBullet.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\module-info.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\GameObject.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\BossEnemy.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\PowerUp.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\Bullet.java
+C:\Users\lamph\OneDrive\Desktop\spaceinvader\src\entities\Player.java

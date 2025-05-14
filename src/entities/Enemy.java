@@ -26,6 +26,7 @@ public class Enemy extends GameObject {
     private boolean dead;
     public boolean exploding;
     public int explosionStep = 0;
+    double time = 0;
 
     /**
      * Constructs an Enemy at the given coordinates.
@@ -53,8 +54,8 @@ public class Enemy extends GameObject {
     @Override
     public void render(GraphicsContext gc) {
         if (exploding) {
-            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, WIDTH,
-                    HEIGHT);
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 50,
+                    50);
             explosionStep += 1;
         } 
         else
@@ -63,7 +64,9 @@ public class Enemy extends GameObject {
     }
     public void setExploding(boolean exploding) {
         this.exploding = exploding;
+        explosionStep = 0;
     }
+
     
     /**
      * Returns the current width of the enemy.
