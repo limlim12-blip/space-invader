@@ -10,9 +10,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -61,6 +58,7 @@ public class SpaceShooter extends Application {
         // This is where you add scenes, layouts, and widgets
         window = primaryStage;
         window.setTitle("SPACE-INVADER");
+        window.getIcons().add(new Image("/boss.png"));
         window.setScene(new Scene(createMenu()));
         window.show();
 
@@ -374,6 +372,7 @@ public class SpaceShooter extends Application {
 
     private void restartGame() {
         // TODO: reset gameObjects, lives, score and switch back to game scene
+        gameRunning = true;
         initEventHandlers(gameScene);
         window.setScene(gameScene);
         enemies = new ArrayList<>();
@@ -411,23 +410,22 @@ public class SpaceShooter extends Application {
         }
     }
     
-    boolean pause;
     private void pause() {
         timer.stop();
-        pause = true;
+        gameRunning = false;
         try {
             Pane a=FXMLLoader.load(getClass().getResource("/pause.fxml"));
             Scene scene = new Scene(a);
              scene.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.SPACE) {
                     window.setScene(gameScene);
-                    pause = false;
+                    gameRunning = true;
                     timer.start();
             }
 
             if (event.getCode() == KeyCode.ESCAPE) {
                     window.setScene(new Scene(createMenu()));
-                    pause = false;
+                    gameRunning = true;
                  }
              });
             
@@ -467,7 +465,7 @@ public class SpaceShooter extends Application {
         if (event.getCode() == KeyCode.UP)player.setMoveForward(true);
         if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(true);
         if (event.getCode() == KeyCode.SPACE) { player.setShooting(true); }
-        if (event.getCode() == KeyCode.ESCAPE) { if(!pause) pause(); }
+        if (event.getCode() == KeyCode.ESCAPE) { if(gameRunning) pause(); }
     }
 
     private void handleKeyRelease(KeyEvent event) {
