@@ -15,7 +15,7 @@ public class Enemy extends GameObject {
     protected static final int WIDTH = 30;
     protected static final int HEIGHT = 30;
 
-    ArrayList<Enemy> enemies=new ArrayList<>();
+
     static final Image ENEMY_IMAGE = new Image(Enemy.class.getResourceAsStream("/enemy.png"));
     static final Image EXPLOSION_IMAGE = new Image(Enemy.class.getResourceAsStream("/explosion.png"));
     // Movement speed

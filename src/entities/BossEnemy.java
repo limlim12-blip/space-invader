@@ -24,16 +24,19 @@ class satellite extends Enemy
         x = boss.centerX() + 180 * Math.cos(time);
         y = boss.centerY() + 180 * Math.sin(time);
     }
+
     @Override
     public void render(GraphicsContext gc) {
-         if (exploding&&explosionStep<=60) {
+        if (exploding && explosionStep <= 60) {
             gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 80, 80);
-            explosionStep += 1;
-        }
-        else
+            explosionStep++;
+            if (explosionStep > 60) {
+                setDead(true);
+            }
+        } else {
             setExploding(false);
-           
-        if(!exploding) gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
+        }
+        if (!exploding) gc.drawImage(ENEMY_IMAGE, x, y, WIDTH, HEIGHT);
     }
 
     @Override

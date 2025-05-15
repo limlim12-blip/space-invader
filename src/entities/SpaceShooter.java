@@ -89,7 +89,7 @@ public class SpaceShooter extends Application {
             }
         };
         timer.start();
-        
+
     }
 
     protected void gamerender(GraphicsContext gc) {
@@ -126,42 +126,34 @@ public class SpaceShooter extends Application {
             }
     }
     }
-    
+
     protected void gameupdate(double elapsedTime) {
-        if (player.getHealth() <= 0)
-            gameOver = true;
+        if (player.getHealth() <= 0) gameOver = true;
         if (!gameOver) {
-            if (score == 1 && !bossExists) {
+            if (score >= 100 && !bossExists) { // Sửa từ score == 1 thành score >= 100
                 spawnBossEnemy();
             }
             player.update();
-            if (player.shooting)
-                player.shoot(bullets);
+            if (player.shooting) player.shoot(bullets);
             checkCollisions();
             checkEnemiesReachingBottom();
-            if (!bossExists)
-                spawnEnemy();
+            if (!bossExists) spawnEnemy();
             spawnPowerUp();
             for (int i = enemies.size() - 1; i >= 0; i--) {
                 enemies.get(i).update();
-                if (enemies.get(i).isDead())
-                    enemies.remove(i);
+                if (enemies.get(i).isDead()) enemies.remove(i);
             }
             for (int i = bullets.size() - 1; i >= 0; i--) {
                 bullets.get(i).update();
-                if (bullets.get(i).isDead())
-                    bullets.remove(i);
+                if (bullets.get(i).isDead()) bullets.remove(i);
             }
             if (bossExists && boss != null) {
                 boss.update();
-                if (boss.health == 40 && moon.size() < 2)
-                    boss.phase(moon, 2);
-                if (boss.health == 30 && moon.size() < 4)
-                    boss.phase(moon, 4);
-                if (boss.health == 20 && moon.size() < 6)
-                    boss.phase(moon, 6);
-                if (boss.health == 10 && moon.size() < 10)
-                    boss.phase(moon, 10);
+                // Sửa logic phase để chỉ gọi một lần khi health thay đổi
+                if (boss.health <= 40 && boss.health > 30 && moon.size() == 0) boss.phase(moon, 2);
+                if (boss.health <= 30 && boss.health > 20 && moon.size() == 2) boss.phase(moon, 4);
+                if (boss.health <= 20 && boss.health > 10 && moon.size() == 4) boss.phase(moon, 6);
+                if (boss.health <= 10 && moon.size() == 6) boss.phase(moon, 10);
                 boss.shoot(eBullets);
                 for (int i = eBullets.size() - 1; i >= 0; i--) {
                     eBullets.get(i).update();
@@ -174,7 +166,7 @@ public class SpaceShooter extends Application {
     }
 
     private void spawnEnemy() {
-        if (Math.random() < 0.01) { // Chỉ spawn với xác suất 1% mỗi frame
+        if (Math.random() < 0.01 && enemies.size() < 10) {
             double spawnX = Math.random() * (WIDTH - Enemy.WIDTH);
             Enemy enemy = new Enemy(spawnX, 0);
             enemies.add(enemy);
@@ -192,11 +184,12 @@ public class SpaceShooter extends Application {
 
     private void spawnBossEnemy() {
         if (score >= 100 && !bossExists) {
-            BossEnemy boss = new BossEnemy(WIDTH / 2, 50);
+            boss = new BossEnemy(WIDTH / 2, 50); // Gán giá trị cho biến boss
             enemies.add(boss);
+            eBullets = new ArrayList<>(); // Khởi tạo danh sách đạn của boss
+            moon = new ArrayList<>(); // Khởi tạo danh sách vệ tinh
             bossExists = true;
         }
-
     }
 
     private void checkCollisions() {
@@ -204,21 +197,92 @@ public class SpaceShooter extends Application {
         for (int i = 0; i < powerUps.size(); i++) {
             PowerUp powerUp = powerUps.get(i);
             if (player.getBounds().intersects(powerUp.getBounds())) {
-                player.setHealth(player.getHealth() + 1); // Tăng mạng sống
-                powerUp.setDead(true); // Đánh dấu là đã chết
+                player.setHealth(player.getHealth() + 1);
+                player.Powerup(); // Gọi Powerup() để tăng tốc độ bắn
+                powerUp.setDead(true);
             }
         }
 
-        // Kiểm tra va chạm với kẻ địch
+        // Kiểm tra va chạm giữa đạn của người chơi và kẻ thù
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            Bullet bullet = bullets.get(i);
+            for (int j = enemies.size() - 1; j >= 0; j--) {
+                Enemy enemy = enemies.get(j);
+                if (bullet.getBounds().intersects(enemy.getBounds())) {
+                    bullet.setExploding(true); // Kích hoạt hiệu ứng nổ cho đạn
+                    enemy.setExploding(true);  // Kích hoạt hiệu ứng nổ cho kẻ thù
+                    score += 10; // Tăng điểm khi tiêu diệt kẻ thù
+                    break; // Thoát vòng lặp kẻ thù để tránh kiểm tra tiếp
+                }
+            }
+        }
+
+        // Kiểm tra va chạm giữa đạn của người chơi và boss (nếu boss tồn tại)
+        if (bossExists && boss != null) {
+            for (int i = bullets.size() - 1; i >= 0; i--) {
+                Bullet bullet = bullets.get(i);
+                if (bullet.getBounds().intersects(boss.getBounds())) {
+                    bullet.setExploding(true);
+                    boss.takeDamage(); // Giảm máu của boss
+                    score += 20; // Tăng điểm khi bắn trúng boss
+                }
+            }
+
+            // Kiểm tra va chạm giữa đạn của người chơi và vệ tinh
+            for (int i = bullets.size() - 1; i >= 0; i--) {
+                Bullet bullet = bullets.get(i);
+                for (int j = moon.size() - 1; j >= 0; j--) {
+                    satellite sat = moon.get(j);
+                    if (bullet.getBounds().intersects(sat.getBounds())) {
+                        bullet.setExploding(true);
+                        sat.setExploding(true);
+                        score += 15; // Tăng điểm khi tiêu diệt vệ tinh
+                        break;
+                    }
+                }
+            }
+
+            // Kiểm tra va chạm giữa đạn của kẻ thù và người chơi
+            for (int i = eBullets.size() - 1; i >= 0; i--) {
+                EnemyBullet eBullet = eBullets.get(i);
+                if (eBullet.getBounds().intersects(player.getBounds())) {
+                    player.setHealth(player.getHealth() - 1);
+                    player.setTakingdame(true);
+                    eBullet.setExploding(true); // Thêm hiệu ứng nổ cho đạn của kẻ thù
+                }
+            }
+        }
+
+        // Kiểm tra va chạm với kẻ thù
         for (int i = 0; i < enemies.size(); i++) {
             Enemy enemy = enemies.get(i);
             if (player.getBounds().intersects(enemy.getBounds())) {
                 player.setHealth(player.getHealth() - 1);
+                player.setTakingdame(true);
                 enemy.setDead(true);
                 enemies.remove(i);
-                i--; // Giảm index để tránh lỗi khi xóa phần tử
+                i--;
             }
         }
+
+        // Kiểm tra va chạm giữa người chơi và vệ tinh
+        for (int i = moon.size() - 1; i >= 0; i--) {
+            satellite sat = moon.get(i);
+            if (player.getBounds().intersects(sat.getBounds())) {
+                player.setHealth(player.getHealth() - 1);
+                player.setTakingdame(true);
+                sat.setExploding(true);
+            }
+        }
+
+        // Kiểm tra va chạm giữa người chơi và boss
+        if (bossExists && boss != null && player.getBounds().intersects(boss.getBounds())) {
+            player.setHealth(player.getHealth() - 2); // Boss gây sát thương lớn hơn
+            player.setTakingdame(true);
+        }
+
+        // Cập nhật trạng thái các đối tượng
+        updateGameObjects();
     }
 
     private void checkEnemiesReachingBottom() {
@@ -236,6 +300,17 @@ public class SpaceShooter extends Application {
         enemies.removeIf(enemy -> enemy.isDead());
         bullets.removeIf(bullet -> bullet.isDead());
         powerUps.removeIf(powerUp -> powerUp.isDead());
+        if (bossExists && boss != null) {
+            eBullets.removeIf(eBullet -> eBullet.isDead());
+            moon.removeIf(sat -> sat.isDead());
+            if (boss.isDead()) {
+                bossExists = false;
+                boss = null;
+                score += 100;
+                showTempMessage("Victory! Boss Defeated!", WIDTH / 2, HEIGHT / 2, 3.0); // Thêm thông báo chiến thắng
+                gameOver = true; // Kết thúc game
+            }
+        }
     }
 
 
@@ -270,7 +345,22 @@ public class SpaceShooter extends Application {
     }
 
     private void showTempMessage(String message, double x, double y, double duration) {
-        // TODO: show temporary on-screen message for duration seconds
+        AnimationTimer messageTimer = new AnimationTimer() {
+            long startTime = System.nanoTime();
+            @Override
+            public void handle(long now) {
+                double elapsed = (now - startTime) / 1_000_000_000.0;
+                if (elapsed < duration) {
+                    gc.setFill(Color.WHITE);
+                    gc.setFont(Font.font(20));
+                    gc.setTextAlign(TextAlignment.CENTER);
+                    gc.fillText(message, x, y);
+                } else {
+                    stop();
+                }
+            }
+        };
+        messageTimer.start();
     }
 
     public Scene gameScene;
@@ -287,7 +377,7 @@ public class SpaceShooter extends Application {
         boss = null;
         player = new Player(WIDTH / 2, HEIGHT - 40);
         window.setScene(gameScene);
-        gameloop(gc);
+        gameloop(gc); // Thêm dòng này để khởi động game loop
     }
 
     public void handleKeyPress(KeyEvent event) {

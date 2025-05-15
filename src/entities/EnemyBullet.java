@@ -1,6 +1,7 @@
 package entities;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
 /**
  * Skeleton for EnemyBullet. Students must implement movement,
@@ -17,6 +18,11 @@ public class EnemyBullet extends GameObject {
 
     // Flag indicating whether the bullet should be removed
     private boolean dead;
+    private boolean exploding;
+    private int explosionStep = 0;
+
+    // Hình ảnh hiệu ứng nổ
+    private static final Image EXPLOSION_IMAGE = new Image(EnemyBullet.class.getResourceAsStream("/explosion.png"));
 
     /**
      * Constructs an EnemyBullet at the given position.
@@ -33,10 +39,16 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public void update() {
-        y += SPEED; // Đạn di chuyển xuống
-
-        if (y > SpaceShooter.HEIGHT) { // Kiểm tra nếu viên đạn ra khỏi màn hình
-            setDead(true);
+        if (exploding) {
+            explosionStep++;
+            if (explosionStep >= 15) {
+                setDead(true);
+            }
+        } else {
+            y += SPEED;
+            if (y > SpaceShooter.HEIGHT) {
+                setDead(true);
+            }
         }
     }
 
@@ -46,8 +58,13 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        gc.setFill(javafx.scene.paint.Color.PURPLE.deriveColor(0, 1.0, 1.0, 0.7)); // Đạn kẻ địch với độ trong suốt
-        gc.fillRect(x, y, WIDTH, HEIGHT); // Vẽ viên đạn dưới dạng hình chữ nhật
+        if (exploding && explosionStep < 15) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 50, 50);
+            explosionStep++;
+        } else if (!exploding) {
+            gc.setFill(javafx.scene.paint.Color.PURPLE.deriveColor(0, 1.0, 1.0, 0.7));
+            gc.fillRect(x, y, WIDTH, HEIGHT);
+        }
     }
 
     /**
@@ -56,7 +73,6 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public double getWidth() {
-        // TODO: return width
         return WIDTH;
     }
 
@@ -66,7 +82,6 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public double getHeight() {
-        // TODO: return height
         return HEIGHT;
     }
 
@@ -84,7 +99,17 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public boolean isDead() {
-        // TODO: return dead flag
         return dead;
+    }
+
+    /**
+     * Sets the exploding state and resets explosion step if starting.
+     * @param exploding true to start explosion effect
+     */
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+        if (exploding) {
+            explosionStep = 0;
+        }
     }
 }

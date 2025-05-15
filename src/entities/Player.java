@@ -16,8 +16,7 @@ public class Player extends GameObject{
     private static final int HEIGHT = 40;
     static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/player.png"));
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
-    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
-    // Movement speed
+    static final Image EXPLOSION_IMAGE = new Image(Player.class.getResourceAsStream("/explosion.png")); // Sửa từ Bullet.class thành Player.class    // Movement speed
     private static final double SPEED = 10;
     public int FireRate;
     public int FIRE_RATE=2;
@@ -102,9 +101,11 @@ public class Player extends GameObject{
 
     public void Powerup() {
         if (FIRE_RATE > 5) {
-            FIRE_RATE -= 1; // Giảm tốc độ bắn nhưng không nhỏ hơn 5
+            FIRE_RATE -= 1;
         }
         setHealth(health + 2);
+        // Thông báo tăng tốc độ bắn (cần triển khai showTempMessage trong SpaceShooter)
+        // SpaceShooter.instance.showTempMessage("Fire rate increased!", x, y, 2.0);
     }
 
     public void setTakingdame(boolean takingdame) {
