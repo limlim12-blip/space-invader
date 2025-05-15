@@ -44,7 +44,7 @@ public class SpaceShooter extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // This is where you add scenes, layouts, and widgets
-        
+
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         powerUps = new ArrayList<>();
@@ -91,42 +91,56 @@ public class SpaceShooter extends Application {
     protected void gamerender(GraphicsContext gc) {
         player.render(gc);
         spawnEnemy();
-        for (Enemy obj : enemies) {
-            obj.render(gc);
+        for (int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).render(gc);
         }
-        for (Explosion explosion : explosions) {
-            explosion.render(gc); // Hiển thị hiệu ứng nổ
+
+        for (int i = 0; i < explosions.size(); i++) {
+            explosions.get(i).render(gc);
         }
 
     }
 
     protected void gameupdate(double elapsedTime) {
-        player.update();
+        player.update(); // Cập nhật người chơi
 
-        for (Enemy obj : enemies) {
-            obj.update();
+        // Gọi phương thức bắn tự động
+        player.shoot(bullets);
+
+        // Cập nhật đạn
+        for (int i = 0; i < bullets.size(); i++) {
+            bullets.get(i).update();
+            if (bullets.get(i).isDead()) {
+                bullets.remove(i);
+                i--; // Giảm index để tránh lỗi khi xóa phần tử
+            }
+        }
+
+        // Cập nhật kẻ địch
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            enemy.update();
+            if (enemy.isDead()) {
+                explosions.add(new Explosion(enemy.getX(), enemy.getY(), 30)); // Thêm giá trị duration
+                enemies.remove(i);
+                i--; // Giảm index sau khi xóa phần tử
+            }
         }
 
         checkCollisions();
         updateGameObjects(); // Xóa các đối tượng đã chết
-        for (Enemy enemy : enemies) {
-            if (enemy.isDead()) {
-                explosions.add(new Explosion(enemy.getX(), enemy.getY())); // Hiển thị hiệu ứng nổ
-            }
-        }
-
     }
 
     private void spawnEnemy() {
-        double spawnX = Math.random() * (WIDTH - Enemy.WIDTH);
-        Enemy enemy = new Enemy(spawnX, 0);
-        enemies.add(enemy);
-
-
+        if (Math.random() < 0.01) { // Chỉ spawn với xác suất 1% mỗi frame
+            double spawnX = Math.random() * (WIDTH - Enemy.WIDTH);
+            Enemy enemy = new Enemy(spawnX, 0);
+            enemies.add(enemy);
+        }
     }
 
     private void spawnPowerUp() {
-        if (Math.random() < 0.01) { // Xác suất xuất hiện mỗi frame
+        if (Math.random() < 0.005) { // Xác suất xuất hiện mỗi frame
             double spawnX = Math.random() * (WIDTH - PowerUp.WIDTH);
             PowerUp powerUp = new PowerUp(spawnX, 0);
             powerUps.add(powerUp);
@@ -144,29 +158,36 @@ public class SpaceShooter extends Application {
     }
 
     private void checkCollisions() {
-        for (PowerUp powerUp : powerUps) {
+        // Kiểm tra va chạm với PowerUp
+        for (int i = 0; i < powerUps.size(); i++) {
+            PowerUp powerUp = powerUps.get(i);
             if (player.getBounds().intersects(powerUp.getBounds())) {
                 player.setHealth(player.getHealth() + 1); // Tăng mạng sống
-                powerUp.setDead(true); // Xóa khỏi danh sách
+                powerUp.setDead(true); // Đánh dấu là đã chết
             }
         }
-        for (Enemy enemy : enemies) {
+
+        // Kiểm tra va chạm với kẻ địch
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
             if (player.getBounds().intersects(enemy.getBounds())) {
-                player.setHealth(player.getHealth() - 1); // Giảm mạng sống
+                player.setHealth(player.getHealth() - 1);
                 enemy.setDead(true);
+                enemies.remove(i);
+                i--; // Giảm index để tránh lỗi khi xóa phần tử
             }
         }
-
-
     }
 
     private void checkEnemiesReachingBottom() {
-        List<Enemy> remove=new ArrayList<>();
-        for (Enemy obj : enemies) {
-            if(obj.getY()>800)
-                remove.add(obj);
+        for (int i = 0; i < enemies.size(); i++) {
+            Enemy enemy = enemies.get(i);
+            if (enemy.getY() > SpaceShooter.HEIGHT) { // Nếu kẻ địch chạm đáy
+                enemies.remove(i); // Xóa kẻ địch khỏi danh sách
+                i--; // Giảm `i` để tránh lỗi khi xóa phần tử
+                SpaceShooter.numLives--; // Trừ mạng khi kẻ địch chạm đáy
+            }
         }
-        // TODO: handle enemies reaching bottom of screen (reduce lives, respawn, reset game)
     }
 
     private void updateGameObjects() {

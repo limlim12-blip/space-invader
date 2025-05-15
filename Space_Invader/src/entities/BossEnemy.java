@@ -26,7 +26,8 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        // TODO: initialize health, speeds, and load resources
+        this.health = 100; // Boss có 100 máu ban đầu
+        this.horizontalSpeed = 2; // Boss di chuyển ngang với tốc độ cố định
     }
 
     /**
@@ -38,8 +39,8 @@ public class BossEnemy extends Enemy {
 
         // Cho Boss di chuyển ngang
         x += horizontalSpeed;
-        if (x <= 0 || x >= SpaceShooter.WIDTH - WIDTH) {
-            horizontalSpeed *= -1; // Đảo hướng khi chạm biên
+        if (x <= 5 || x >= SpaceShooter.WIDTH - WIDTH - 5) {
+            horizontalSpeed *= -1; // Đảo hướng khi gần biên
         }
 
         if (y >= SpaceShooter.HEIGHT) {
@@ -51,9 +52,10 @@ public class BossEnemy extends Enemy {
      * Inflicts damage to the boss.
      */
     public void takeDamage() {
-        health -= 10; // Mỗi lần trúng đạn, trừ 10 máu
+        health -= 10;
         if (health <= 0) {
-            setDead(true); // Nếu máu <= 0, Boss bị tiêu diệt
+            SpaceShooter.explosions.add(new Explosion(x, y, 30)); // Thêm hiệu ứng nổ khi chết
+            setDead(true);
         }
     }
 
@@ -62,8 +64,10 @@ public class BossEnemy extends Enemy {
      * @param newObjects list to which new bullets are added
      */
     public void shoot(List<GameObject> newObjects) {
-        EnemyBullet bullet = new EnemyBullet(x + WIDTH / 2, y + HEIGHT);
-        newObjects.add(bullet); // Thêm đạn vào danh sách để hiển thị
+        for (int i = -1; i <= 1; i++) { // Bắn 3 viên đạn tỏa ra
+            EnemyBullet bullet = new EnemyBullet(x + WIDTH / 2 + i * 10, y + HEIGHT);
+            newObjects.add(bullet);
+        }
     }
 
     /**

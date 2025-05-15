@@ -25,7 +25,7 @@ public class PowerUp extends GameObject {
      */
     public PowerUp(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        // TODO: initialize dead flag, load sprite if needed
+        this.dead = false; // Đảm bảo PowerUp khởi tạo ở trạng thái hoạt động
     }
 
     /**
