@@ -25,7 +25,7 @@ public class PowerUp extends GameObject {
      */
     public PowerUp(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        // TODO: initialize dead flag, load sprite if needed
+        this.dead = false; // Đảm bảo PowerUp khởi tạo ở trạng thái hoạt động
     }
 
     /**
@@ -33,7 +33,10 @@ public class PowerUp extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: move power-up vertically by SPEED
+        y += SPEED; // Di chuyển PowerUp xuống dưới
+        if (y >= SpaceShooter.HEIGHT) {
+            setDead(true); // Xóa nếu ra khỏi màn hình
+        }
     }
 
     /**
@@ -42,7 +45,8 @@ public class PowerUp extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw sprite or fallback (e.g., colored rectangle)
+        gc.setFill(javafx.scene.paint.Color.YELLOW); // Màu sắc của PowerUp
+        gc.fillOval(x, y, WIDTH, HEIGHT); // Vẽ PowerUp dưới dạng hình tròn
     }
 
     /**

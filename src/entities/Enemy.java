@@ -1,7 +1,6 @@
 package entities;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -17,12 +16,17 @@ public class Enemy extends GameObject {
     protected static final int HEIGHT = 30;
 
     ArrayList<Enemy> enemies=new ArrayList<>();
-    static final Image ENEMY_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/enemy.png"));
+    static final Image ENEMY_IMAGE = new Image(Enemy.class.getResourceAsStream("/enemy.png"));
+    static final Image EXPLOSION_IMAGE = new Image(Enemy.class.getResourceAsStream("/explosion.png"));
     // Movement speed
-    public static double SPEED = 1;
+    public static double SPEED = 5;
 
+    
     // Flag to indicate if enemy should be removed
     private boolean dead;
+    public boolean exploding;
+    public int explosionStep = 0;
+    double time = 0;
 
     /**
      * Constructs an Enemy at the given coordinates.
@@ -31,8 +35,7 @@ public class Enemy extends GameObject {
      */
     public Enemy(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        dead = false;
-        // TODO: load sprite if needed and initialize dead flag
+        setDead(false);
     }
 
     /**
@@ -40,9 +43,14 @@ public class Enemy extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: implement vertical movement by SPEED
-         y += SPEED*10;
-        
+        if (!exploding) {
+            y += SPEED; // Kẻ địch di chuyển xuống
+        } else {
+            explosionStep++;
+            if (explosionStep >= 15) {
+                setDead(true); // Đánh dấu kẻ địch chết khi hiệu ứng nổ hoàn tất
+            }
+        }
     }
     
     /**
@@ -51,9 +59,21 @@ public class Enemy extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
-        // TODO: draw sprite or fallback shape (e.g., colored rectangle)
+        if (exploding) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 50, 50);
+            if (explosionStep < 15) {
+                explosionStep++; // Chỉ tăng khi chưa đạt mức cuối cùng
+            }
+        } else {
+            gc.drawImage(ENEMY_IMAGE, x, y, WIDTH, HEIGHT);
+        }
+
     }
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+        explosionStep = 0;
+    }
+
     
     /**
      * Returns the current width of the enemy.

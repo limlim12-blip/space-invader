@@ -1,0 +1,4 @@
+entities\GameObject.class
+entities\Bullet.class
+entities\Enemy.class
+entities\SpaceShooter$1.class

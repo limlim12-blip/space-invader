@@ -25,7 +25,7 @@ public class EnemyBullet extends GameObject {
      */
     public EnemyBullet(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        // TODO: initialize dead flag if needed
+        this.dead = false; // Đảm bảo viên đạn chưa bị đánh dấu chết khi được tạo
     }
 
     /**
@@ -33,7 +33,11 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public void update() {
-        // TODO: move bullet vertically by SPEED
+        y += SPEED; // Đạn di chuyển xuống
+
+        if (y > SpaceShooter.HEIGHT) { // Kiểm tra nếu viên đạn ra khỏi màn hình
+            setDead(true);
+        }
     }
 
     /**
@@ -42,7 +46,8 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw bullet (e.g., filled rectangle or sprite)
+        gc.setFill(javafx.scene.paint.Color.PURPLE.deriveColor(0, 1.0, 1.0, 0.7)); // Đạn kẻ địch với độ trong suốt
+        gc.fillRect(x, y, WIDTH, HEIGHT); // Vẽ viên đạn dưới dạng hình chữ nhật
     }
 
     /**
@@ -70,7 +75,7 @@ public class EnemyBullet extends GameObject {
      * @param dead true if bullet should be removed
      */
     public void setDead(boolean dead) {
-        // TODO: update dead flag
+        this.dead = dead;
     }
 
     /**
