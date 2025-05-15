@@ -14,9 +14,9 @@ public class Player extends GameObject{
     // Hitbox dimensions
     private static final int WIDTH = 40;
     private static final int HEIGHT = 40;
-    static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/res/player.png"));
-    static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/res/damged.PNG"));
-    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/res/explosion.png"));
+    static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/player.png"));
+    static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
+    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
     // Movement speed
     private static final double SPEED = 10;
     public int FireRate;

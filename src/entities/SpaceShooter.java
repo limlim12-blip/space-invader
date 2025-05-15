@@ -1,19 +1,23 @@
 package entities;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
@@ -31,6 +35,7 @@ public class SpaceShooter extends Application {
     public static int numLives = 3;
     private boolean bossExists=false;
     private int score;
+    private int levelUpShown;
     private boolean reset;
     private boolean gameRunning;
     private boolean gameOver;
@@ -68,9 +73,9 @@ public class SpaceShooter extends Application {
 
     }
     // Game mechanics stubs
-
+    AnimationTimer timer;
     private void gameloop(GraphicsContext gc) {
-        AnimationTimer timer = new AnimationTimer() {
+        timer = new AnimationTimer() {
             long lastUpdate = 0;
 
             @Override
@@ -79,7 +84,13 @@ public class SpaceShooter extends Application {
                     double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
                     if (player.getHealth() <= 0) {
                         gameOver = true;
-                        showLosingScreen();
+                        try {
+                            showLosingScreen();
+                            stop();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
                     }
                     gameupdate(elapsedTime);
                     gamerender(gc);
@@ -92,7 +103,8 @@ public class SpaceShooter extends Application {
     }
 
     protected void gamerender(GraphicsContext gc) {
-    gc.setFill(Color.grayRgb(20));
+    ImagePattern uni = new ImagePattern(new Image("/universe.jpg"));
+    gc.setFill(uni);
     gc.fillRect(0, 0, WIDTH, HEIGHT);
     gc.setTextAlign(TextAlignment.LEFT);
     gc.setFont(Font.font(20));
@@ -124,7 +136,9 @@ public class SpaceShooter extends Application {
                 moon.get(i).render(gc);
             }
     }
-        
+    if (levelUpShown > 0) {
+        showTempMessage("   LEVEL UP!", player.x+20, player.y-10);
+    }
     }
     
     protected void gameupdate(double elapsedTime) {
@@ -159,6 +173,9 @@ public class SpaceShooter extends Application {
             }
             if (bossExists && boss != null) {
                 boss.update();
+                bossExists = !boss.isDead();
+                if (boss.health <= 0)
+                    boss.exploding = true;
                 if (boss.health == 40 && moon.size() < 2)
                     boss.phase(moon, 2);
                 if (boss.health == 30 && moon.size() < 4)
@@ -170,10 +187,29 @@ public class SpaceShooter extends Application {
                 boss.shoot(eBullets);
                 for (int i = eBullets.size() - 1; i >= 0; i--) {
                     eBullets.get(i).update();
+                    if (eBullets.get(i).isDead()) {
+                        eBullets.remove(i);
+                    }
                 }
                 for (int i = moon.size() - 1; i >= 0; i--) {
                     moon.get(i).up(boss);
+                    if (moon.get(i).isDead()) {
+                        moon.remove(i);
+                    }
                 }
+            }
+            if (boss != null && boss.exploding) {
+                for (int i = eBullets.size() - 1; i >= 0; i--) {
+                    eBullets.get(i).setExploding(true);
+                }
+                for (int i = moon.size() - 1; i >= 0; i--) {
+                    moon.get(i).setExploding(true);
+                    
+                }
+            }
+            if (boss != null && boss.isDead()) {
+                boss = null;
+                bossExists = false;
             }
         }
     }
@@ -230,6 +266,7 @@ public class SpaceShooter extends Application {
                     bullets.get(i).setDead(true);
                     player.Powerup();
                     score++;
+                    levelUpShown = 15;
 
                 }
             }
@@ -237,23 +274,23 @@ public class SpaceShooter extends Application {
                 player.Powerup();
                 score++;
                 up.get(0).setDead(true);
-                ;
+                levelUpShown = 15;
             }
         }
         if (bossExists) {
             for (Bullet bullet : bullets) {
                 if (bullet.getBounds().intersects(boss.getBounds())) {
-                    if (!bullet.exploding) {
+                    if (!bullet.exploding&&!boss.exploding) {
                         score++;
                         bullet.setExploding(true);
                         boss.takeDamage();
+                        bullet.setExploding(true);
                     }
-                    bullet.setExploding(true);
 
                 }
                 for (int i = eBullets.size() - 1; i >= 0; i--) {
                     if (bullet.getBounds().intersects(eBullets.get(i).getBounds())) {
-                        if (!bullet.exploding) {
+                        if (!bullet.exploding||eBullets.get(i).exploding) {
                             bullet.setExploding(true);
                             eBullets.remove(i);
                             score++;
@@ -271,21 +308,21 @@ public class SpaceShooter extends Application {
                     }
                 }
             }
-            if (player.getBounds().intersects(boss.getBounds())&&!player.exploding) {
+            if (player.getBounds().intersects(boss.getBounds())&&!player.exploding&&!boss.exploding) {
                 player.setHealth(player.getHealth() - 3);
                 player.setTakingdame(true);
                 player.setExploding(true);
             }
             for (int i = moon.size() - 1; i >= 0; i--) {
                 if (player.getBounds().intersects(moon.get(i).getBounds())) {
-                    if (!player.exploding) {
+                    if (!player.exploding&&!moon.get(i).exploding) {
                         player.setHealth(player.getHealth() - 1);
                         player.setTakingdame(true);
                         player.setExploding(true);
                     }
                 }
                 for (Bullet bullet : bullets) {
-                    if (!moon.get(i).exploding) {
+                    if (!moon.get(i).exploding&&!bullet.exploding) {
                         if (moon.get(i).getBounds().intersects(bullet.getBounds())) {
                             moon.get(i).setExploding(true);
                             bullet.setExploding(true);
@@ -325,27 +362,28 @@ public class SpaceShooter extends Application {
 
     // UI and game state methods
 
-    private void showLosingScreen() {
-        // TODO: display Game Over screen with score and buttons
-        Pane losing = new StackPane(canvas);
-        String a = score + "";
-        Label label = new Label(a);
-        Button restartButton = new Button("restartGame");
-        restartButton.setOnAction(event -> {
-            restartGame();
-        });
+    private void showLosingScreen() throws IOException {
+        FXMLLoader root = new FXMLLoader(getClass().getResource("/losing.fxml"));
+        Pane a = root.load();
+        Losing men = root.getController();
+        men.setGame(this);
+        men.setScore1(score);
+        window.setScene(new Scene(a));
 
-        Button resetButton = new Button("resetGame");
-        resetButton.setOnAction(event -> {
-            resetGame();
-        });
-        losing.getChildren().addAll(label, resetButton,restartButton);
-        Scene scene = new Scene(losing);
-        window.setScene(scene);
     }
 
     private void restartGame() {
         // TODO: reset gameObjects, lives, score and switch back to game scene
+        initEventHandlers(gameScene);
+        window.setScene(gameScene);
+        enemies = new ArrayList<>();
+        bullets = new ArrayList<>();
+        up = new ArrayList<>();
+        score = 0;
+        gameOver = false;
+        bossExists = false;
+        boss = null;
+        player = new Player(WIDTH / 2, HEIGHT - 40);
     }
 
     private void resetGame() {
@@ -356,42 +394,69 @@ public class SpaceShooter extends Application {
 
         scene.setOnKeyPressed(event -> handleKeyPress(event));
         scene.setOnKeyReleased(event -> handleKeyRelease(event));
-        // TODO: set OnKeyPressed and OnKeyReleased for movement and shooting
     }
 
     private Pane createMenu() {
-        // TODO: build and return main menu pane with styled buttons
-        Pane menu = new StackPane(canvas);
-        Label label = new Label("label");
-        Button playButton = new Button("Start Game");
-        playButton.setOnAction(event -> {
-            startGame();
-        });
+        FXMLLoader root = new FXMLLoader(getClass().getResource("/menu.fxml"));
+        Pane a;
+        try {
+            a = root.load();
+            Menu men = root.getController();
+            men.setGame(this);
+            return a;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return new Pane();
+        }
+    }
+    
+    boolean pause;
+    private void pause() {
+        timer.stop();
+        pause = true;
+        try {
+            Pane a=FXMLLoader.load(getClass().getResource("/pause.fxml"));
+            Scene scene = new Scene(a);
+             scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.SPACE) {
+                    window.setScene(gameScene);
+                    pause = false;
+                    timer.start();
+            }
 
-        menu.getChildren().addAll(label, playButton);
-        return menu;
+            if (event.getCode() == KeyCode.ESCAPE) {
+                    window.setScene(new Scene(createMenu()));
+                    pause = false;
+                 }
+             });
+            
+            window.setScene(scene);
+            a.requestFocus();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    private void showInstructions() {
-        // TODO: display instructions dialog
+
+    private void showTempMessage(String message, double x, double y) {
+        if (levelUpShown < 0) {
+            levelUpShown = 0;
+        }
+        else {
+            gc.setTextAlign(TextAlignment.LEFT);
+            gc.setFont(Font.font(12));
+            gc.setFill(Color.GREEN);
+            gc.fillText(message, x, y);
+            levelUpShown--;
+        }
     }
 
-    private void showTempMessage(String message, double x, double y, double duration) {
-        // TODO: show temporary on-screen message for duration seconds
-    }
-
-    private void startGame() {
-        StackPane root = new StackPane(canvas);
-        Scene gameScene = new Scene(root);
-        initEventHandlers(gameScene);
-        window.setScene(gameScene);
-        enemies = new ArrayList<>();
-        bullets = new ArrayList<>();
-        up = new ArrayList<>();
-        score = 0;
-        gameOver = false;
-        player = new Player(WIDTH / 2, HEIGHT - 40);
-        window.show();
+    StackPane root = new StackPane(canvas);
+    Scene gameScene = new Scene(root);
+    public void startGame() {
+        restartGame();
         gameloop(gc);
     }
 
@@ -401,7 +466,8 @@ public class SpaceShooter extends Application {
         if (event.getCode() == KeyCode.RIGHT)player.setMoveRight(true);
         if (event.getCode() == KeyCode.UP)player.setMoveForward(true);
         if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(true);
-        if (event.getCode() == KeyCode.SPACE)player.setShooting(true);
+        if (event.getCode() == KeyCode.SPACE) { player.setShooting(true); }
+        if (event.getCode() == KeyCode.ESCAPE) { if(!pause) pause(); }
     }
 
     private void handleKeyRelease(KeyEvent event) {

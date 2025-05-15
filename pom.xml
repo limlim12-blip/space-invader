@@ -18,10 +18,12 @@
         <!-- 👇 Tell Maven to use src/ as source root -->
         <resources>
             <resource>
-                <directory>src</directory>
+                <directory>src/res</directory>
                 <includes>
                     <include>**/*.png</include>
                     <include>**/*.PNG</include>
+                    <include>**/*.fxml</include>
+                    <include>**/*.jpg</include>
                 </includes>
             </resource>
         </resources>

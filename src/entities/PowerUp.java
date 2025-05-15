@@ -16,7 +16,7 @@ public class PowerUp extends GameObject {
     // Fall speed of the power-up
     private static final double SPEED = 2;
 
-    static final Image POWERUP_IMAGE = new Image(Enemy.class.getResourceAsStream("/res/powerup.png"));
+    static final Image POWERUP_IMAGE = new Image(Enemy.class.getResourceAsStream("/powerup.png"));
     // Flag indicating whether the power-up should be removed
     private boolean dead;
 

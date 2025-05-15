@@ -1,10 +1,2 @@
-entities\GameObject.class
-entities\PowerUp.class
-entities\EnemyBullet.class
-entities\Player.class
-entities\SpaceShooter.class
 module-info.class
-entities\BossEnemy.class
-entities\Bullet.class
-entities\Enemy.class
-entities\SpaceShooter$1.class
+entities\GameObject.class

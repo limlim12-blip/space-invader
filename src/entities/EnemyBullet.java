@@ -20,8 +20,8 @@ public class EnemyBullet extends GameObject {
     // Flag to indicate if bullet should be removed
     private boolean dead;
 
-    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/res/explosion.png"));
-    static final Image BOMB_IMAGE = new Image(Bullet.class.getResourceAsStream("/res/bomb.png"));
+    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
+    static final Image BOMB_IMAGE = new Image(Bullet.class.getResourceAsStream("/bomb.png"));
     /**
      * Constructs an EnemyBullet at the given position.
      * @param x initial X position

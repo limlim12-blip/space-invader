@@ -21,7 +21,7 @@ public class Bullet extends GameObject {
     // Flag to indicate if bullet should be removed
     private boolean dead;
 
-    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/res/explosion.png"));
+    static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
     /**
      * Constructs a Bullet at the given position.
      * @param x initial X position

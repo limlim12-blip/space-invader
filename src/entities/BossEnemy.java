@@ -20,13 +20,17 @@ class satellite extends Enemy
         this.time = angle;
     }
     public void up(BossEnemy boss) {
+        if (!boss.exploding||!exploding) {
+            
+        
         time += 0.05*((51-(double)boss.health)/10);
         x = boss.centerX() + 180 * Math.cos(time);
         y = boss.centerY() + 180 * Math.sin(time);
+        }
     }
     @Override
     public void render(GraphicsContext gc) {
-         if (exploding&&explosionStep<=60) {
+         if (exploding&&explosionStep<=15) {
             gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 80, 80);
             explosionStep += 1;
         }
@@ -54,7 +58,7 @@ public class BossEnemy extends Enemy {
 
     // Horizontal movement speed
     private double FireRate=50;
-    static final Image BOSS_IMAGE = new Image(BossEnemy.class.getResourceAsStream("/res/boss.png"));
+    static final Image BOSS_IMAGE = new Image(BossEnemy.class.getResourceAsStream("/boss.png"));
     /**
      * Constructs a BossEnemy at the given coordinates.
      * @param x initial X position
@@ -62,7 +66,7 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        setHealth(50);
+        setHealth(10);
         phase = 0;
     }
 
@@ -71,10 +75,14 @@ public class BossEnemy extends Enemy {
      */
     @Override
     public void update() {
+        if(!exploding){
         time += (((double)(new Random().nextInt(8)+3))/100)*((51-(double)this.health)/15);
         x = 200 + 70 * Math.sin(1.5 * time) + 150 * Math.sin(1.1 * time);
         y = 600 * Math.pow(Math.sin(0.4 * time), 2) + 175 * Math.abs(Math.sin(0.9 * time));
         FireRate--;
+    }
+        if(explosionStep>=30)
+        setDead(true);
     }
 
 
@@ -83,7 +91,6 @@ public class BossEnemy extends Enemy {
      */
     public void takeDamage() {
         health--;
-        setDead(health<=0);
     }
 
     /**
@@ -118,6 +125,12 @@ public class BossEnemy extends Enemy {
      */
     @Override
     public void render(GraphicsContext gc) {
+        if (exploding&&explosionStep<=30) {
+            gc.drawImage(EXPLOSION_IMAGE, (explosionStep/2) % 3 * 128, (explosionStep / 2)%3 * 128 + 1, 128, 128, x, y, WIDTH+100,
+                    HEIGHT+100);
+            explosionStep += 1;
+        } 
+        else
             gc.drawImage(BOSS_IMAGE, x, y,WIDTH,HEIGHT);
     }
     public int getHealth() {
