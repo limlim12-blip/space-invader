@@ -37,13 +37,21 @@ public class Player extends GameObject{
     public int takingdamestep;
     public boolean exploding;
     public int explosionStep = 0;
-
+    private boolean invulnerable = false;
+    private double invulnerabilityTimer = 0;
+    private static final double INVULNERABILITY_DURATION = 1.0; // 1 giây
     
     /**
      * Updates player position based on movement flags.
      */
     @Override
     public void update() {
+        if (invulnerable) {
+            invulnerabilityTimer -= 1.0 / 60.0; // Giả sử 60 FPS
+            if (invulnerabilityTimer <= 0) {
+                invulnerable = false;
+            }
+        }
         if (moveLeft) {
             if (x < 10)
                 x = 0; 
@@ -111,11 +119,41 @@ public class Player extends GameObject{
     public void setTakingdame(boolean takingdame) {
         this.takingdame = takingdame;
         takingdamestep = 0;
+        if (takingdame) {
+            invulnerable = true;
+            invulnerabilityTimer = INVULNERABILITY_DURATION;
+            SpaceShooter game = SpaceShooter.instance;
+            double dx = 0, dy = 0, distance = 0;
+            if (game.bossExists && game.boss != null && getBounds().intersects(game.boss.getBounds())) {
+                dx = x - game.boss.centerX();
+                dy = y - game.boss.centerY();
+                distance = Math.sqrt(dx * dx + dy * dy);
+            } else {
+                for (satellite sat : game.moon) {
+                    if (getBounds().intersects(sat.getBounds())) {
+                        dx = x - (sat.getX() + sat.getWidth() / 2);
+                        dy = y - (sat.getY() + sat.getHeight() / 2);
+                        distance = Math.sqrt(dx * dx + dy * dy);
+                        break;
+                    }
+                }
+            }
+            if (distance > 0) {
+                x += dx / distance * 20;
+                y += dy / distance * 20;
+            }
+        }
     }
+
     public void setExploding(boolean exploding) {
         this.exploding = exploding;
         explosionStep = 0;
     }
+
+    public boolean isInvulnerable() {
+        return invulnerable;
+    }
+
     /**
      * Sets movement flags.
      */

@@ -41,7 +41,9 @@ class satellite extends Enemy
 
     @Override
     public void update() {
-        return;
+        if (!exploding && SpaceShooter.instance.boss != null) {
+            up(SpaceShooter.instance.boss);
+        }
     }
 }
 public class BossEnemy extends Enemy {
@@ -54,6 +56,9 @@ public class BossEnemy extends Enemy {
     private static final int WIDTH = 100;
     private static final int HEIGHT = 100;
     int phase;
+    private boolean tookDamageThisFrame = false;
+    public boolean exploding = false;
+    public int explosionStep = 0;
 
     // Horizontal movement speed
     private double FireRate=50;
@@ -72,12 +77,20 @@ public class BossEnemy extends Enemy {
     /**
      * Update boss's position and behavior each frame.
      */
+
     @Override
     public void update() {
-        time += (((double)(new Random().nextInt(8)+3))/100)*((51-(double)this.health)/15);
+        time += (((double) (new Random().nextInt(8) + 3)) / 100) * ((51 - (double) this.health) / 15);
         x = 200 + 70 * Math.sin(1.5 * time) + 150 * Math.sin(1.1 * time);
         y = 600 * Math.pow(Math.sin(0.4 * time), 2) + 175 * Math.abs(Math.sin(0.9 * time));
         FireRate--;
+        if (exploding) {
+            explosionStep++;
+            if (explosionStep >= 60) {
+                setDead(true);
+            }
+        }
+        tookDamageThisFrame = false;
     }
 
 
@@ -85,8 +98,16 @@ public class BossEnemy extends Enemy {
      * Inflicts damage to the boss.
      */
     public void takeDamage() {
-        health--;
-        setDead(health<=0);
+        if (!tookDamageThisFrame) {
+            health--;
+            tookDamageThisFrame = true;
+            if (health == 40 || health == 30 || health == 20 || health == 10) {
+                phase(SpaceShooter.instance.moon, 4 - (health / 10));
+            }
+            if (health <= 0) {
+                setExploding(true);
+            }
+        }
     }
 
     /**
@@ -94,13 +115,13 @@ public class BossEnemy extends Enemy {
      * @param newObjects list to which new bullets are added
      */
     public void shoot(List<EnemyBullet> newObjects) {
-        if (FireRate <= 0&&y<200) {
-            double angle = (new Random().nextInt(10)+10)/10;
-            newObjects.add( new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI)));
-            newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI / 2)));
-            newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI * 3 / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI * 3 / 2)));
-            newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle)));
-            FireRate = new Random().nextInt(50)+50;
+        if (FireRate <= 0) {
+            double angle = (new Random().nextInt(10) + 10) / 10.0;
+            newObjects.add(new EnemyBullet(centerX() + 50 * Math.cos(time * angle + Math.PI), centerY() + 50 * Math.sin(time * angle + Math.PI)));
+            newObjects.add(new EnemyBullet(centerX() + 50 * Math.cos(time * angle + Math.PI / 2), centerY() + 50 * Math.sin(time * angle + Math.PI / 2)));
+            newObjects.add(new EnemyBullet(centerX() + 50 * Math.cos(time * angle + Math.PI * 3 / 2), centerY() + 50 * Math.sin(time * angle + Math.PI * 3 / 2)));
+            newObjects.add(new EnemyBullet(centerX() + 50 * Math.cos(time * angle), centerY() + 50 * Math.sin(time * angle)));
+            FireRate = 50;
         }
     }
 
@@ -121,7 +142,18 @@ public class BossEnemy extends Enemy {
      */
     @Override
     public void render(GraphicsContext gc) {
-            gc.drawImage(BOSS_IMAGE, x, y,WIDTH,HEIGHT);
+        if (exploding && explosionStep <= 60) {
+            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 100, 100);
+            explosionStep++;
+        } else if (!exploding) {
+            gc.drawImage(BOSS_IMAGE, x, y, WIDTH, HEIGHT);
+        }
+    }
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+        if (exploding) {
+            explosionStep = 0;
+        }
     }
     public int getHealth() {
         return health;
@@ -146,12 +178,6 @@ public class BossEnemy extends Enemy {
     }
     @Override
     public Bounds getBounds() {
-        // TODO Auto-generated method stub
-        return new javafx.scene.shape.Rectangle(
-            x+11,
-            y+20,
-            getWidth()-38,
-            getHeight()-50
-        ).getBoundsInLocal();
+        return new javafx.scene.shape.Rectangle(x, y, WIDTH, HEIGHT).getBoundsInLocal();
     }
 }
