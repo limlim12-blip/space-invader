@@ -209,10 +209,11 @@ public class SpaceShooter extends Application {
             for (int j = enemies.size() - 1; j >= 0; j--) {
                 Enemy enemy = enemies.get(j);
                 if (bullet.getBounds().intersects(enemy.getBounds())) {
-                    bullet.setExploding(true); // Kích hoạt hiệu ứng nổ cho đạn
-                    enemy.setExploding(true);  // Kích hoạt hiệu ứng nổ cho kẻ thù
-                    score += 10; // Tăng điểm khi tiêu diệt kẻ thù
-                    break; // Thoát vòng lặp kẻ thù để tránh kiểm tra tiếp
+                    enemy.setExploding(true);  // Chỉ nổ cho kẻ thù
+                    enemy.setDead(true);       // Đánh dấu kẻ thù chết ngay lập tức
+                    score += 10;              // Tăng điểm
+                    bullets.remove(i);        // Xóa đạn ngay khi trúng, tránh nổ đạn
+                    break;                    // Thoát vòng lặp
                 }
             }
         }
@@ -222,25 +223,28 @@ public class SpaceShooter extends Application {
             for (int i = bullets.size() - 1; i >= 0; i--) {
                 Bullet bullet = bullets.get(i);
                 if (bullet.getBounds().intersects(boss.getBounds())) {
-                    bullet.setExploding(true);
-                    boss.takeDamage(); // Giảm máu của boss
-                    score += 20; // Tăng điểm khi bắn trúng boss
+                    boss.takeDamage();       // Giảm máu boss
+                    score += 20;            // Tăng điểm
+                    bullets.remove(i);      // Xóa đạn ngay khi trúng
                 }
             }
+        }
 
             // Kiểm tra va chạm giữa đạn của người chơi và vệ tinh
-            for (int i = bullets.size() - 1; i >= 0; i--) {
-                Bullet bullet = bullets.get(i);
-                for (int j = moon.size() - 1; j >= 0; j--) {
-                    satellite sat = moon.get(j);
-                    if (bullet.getBounds().intersects(sat.getBounds())) {
-                        bullet.setExploding(true);
-                        sat.setExploding(true);
-                        score += 15; // Tăng điểm khi tiêu diệt vệ tinh
-                        break;
-                    }
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            Bullet bullet = bullets.get(i);
+            for (int j = moon.size() - 1; j >= 0; j--) {
+                satellite sat = moon.get(j);
+                if (bullet.getBounds().intersects(sat.getBounds())) {
+                    sat.setExploding(true); // Chỉ nổ cho vệ tinh
+                    sat.setDead(true);      // Đánh dấu vệ tinh chết
+                    score += 15;            // Tăng điểm
+                    bullets.remove(i);      // Xóa đạn ngay khi trúng
+                    break;                  // Thoát vòng lặp
                 }
             }
+        }
+
 
             // Kiểm tra va chạm giữa đạn của kẻ thù và người chơi
             for (int i = eBullets.size() - 1; i >= 0; i--) {
@@ -251,7 +255,7 @@ public class SpaceShooter extends Application {
                     eBullet.setExploding(true); // Thêm hiệu ứng nổ cho đạn của kẻ thù
                 }
             }
-        }
+
 
         // Kiểm tra va chạm với kẻ thù
         for (int i = 0; i < enemies.size(); i++) {
@@ -307,8 +311,8 @@ public class SpaceShooter extends Application {
                 bossExists = false;
                 boss = null;
                 score += 100;
-                showTempMessage("Victory! Boss Defeated!", WIDTH / 2, HEIGHT / 2, 3.0); // Thêm thông báo chiến thắng
-                gameOver = true; // Kết thúc game
+                showTempMessage("Boss Defeated! Keep Fighting!", WIDTH / 2, HEIGHT / 2, 3.0); // Thay thông báo chiến thắng bằng thông báo tiếp tục
+                // Không đặt gameOver = true, để game tiếp tục
             }
         }
     }

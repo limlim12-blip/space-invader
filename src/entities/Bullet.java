@@ -41,13 +41,7 @@ public class Bullet extends GameObject {
         if (y + HEIGHT < 0) { // Kiểm tra nếu viên đạn ra khỏi màn hình
             setDead(true);
         }
-
-        if (exploding) {
-            explosionStep++;
-            if (explosionStep >= 15) {
-                setDead(true);
-            }
-        }
+        // Loại bỏ logic nổ cho đạn, vì nó đã được xử lý trong checkCollisions
     }
 
     /**
