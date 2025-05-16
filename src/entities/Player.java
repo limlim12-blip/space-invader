@@ -18,9 +18,9 @@ public class Player extends GameObject{
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
     static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
     // Movement speed
-    private static final double SPEED = 10;
+    private static double SPEED = 10;
     public int FireRate;
-    public int FIRE_RATE=2;
+    public int FIRE_RATE=10;
 
     // Movement flags w w
     private boolean moveLeft;
@@ -100,6 +100,8 @@ public class Player extends GameObject{
     public void Powerup() {
         if(FIRE_RATE>5)
         FIRE_RATE -=1;
+        if(SPEED<30)
+        this.SPEED +=1;
         setHealth(health+2);
     }
     public void setTakingdame(boolean takingdame) {

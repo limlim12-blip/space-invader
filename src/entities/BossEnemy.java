@@ -67,6 +67,7 @@ public class BossEnemy extends Enemy {
     public BossEnemy(double x, double y) {
         super(x, y);
         setHealth(10);
+        setDead(false);
         phase = 0;
     }
 
@@ -76,7 +77,7 @@ public class BossEnemy extends Enemy {
     @Override
     public void update() {
         if(!exploding){
-        time += (((double)(new Random().nextInt(8)+3))/100)*((51-(double)this.health)/15);
+        time += (((double)(new Random().nextInt(8)+3))/100)*((51-(double)this.health)/40);
         x = 200 + 70 * Math.sin(1.5 * time) + 150 * Math.sin(1.1 * time);
         y = 600 * Math.pow(Math.sin(0.4 * time), 2) + 175 * Math.abs(Math.sin(0.9 * time));
         FireRate--;
@@ -91,6 +92,7 @@ public class BossEnemy extends Enemy {
      */
     public void takeDamage() {
         health--;
+        setExploding(health<=0);
     }
 
     /**

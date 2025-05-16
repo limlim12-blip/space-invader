@@ -101,42 +101,42 @@ public class SpaceShooter extends Application {
     }
 
     protected void gamerender(GraphicsContext gc) {
-    ImagePattern uni = new ImagePattern(new Image("/universe.jpg"));
-    gc.setFill(uni);
-    gc.fillRect(0, 0, WIDTH, HEIGHT);
-    gc.setTextAlign(TextAlignment.LEFT);
-    gc.setFont(Font.font(20));
-    gc.setFill(Color.WHITE);
-    if (!bossExists) {
-        gc.fillText("Score: " + score, 10, 30);
-        gc.fillText("Health: " + player.getHealth(), 10, 55);
-    } 
-    else {
-        gc.fillText("Score: " + score, 10, 30);
-        gc.fillText("Player health: " + player.getHealth(), 10, 55);
-        gc.fillText("Boss health: " + boss.getHealth(), 10, 80);
-    }
-    player.render(gc);
-    for (int i = enemies.size() - 1; i >= 0; i--) {
-        enemies.get(i).render(gc);
-    }
-    for (int i = bullets.size() - 1; i >= 0; i--) {
-        bullets.get(i).render(gc);
-    }
-    if(!up.isEmpty())
-    up.get(0).render(gc);
-    if (bossExists && boss != null) {
-        boss.render(gc);
+        ImagePattern uni = new ImagePattern(new Image("/universe.jpg"));
+        gc.setFill(uni);
+        gc.fillRect(0, 0, WIDTH, HEIGHT);
+        gc.setTextAlign(TextAlignment.LEFT);
+        gc.setFont(Font.font(20));
+        gc.setFill(Color.WHITE);
+        if (!bossExists) {
+            gc.fillText("Score: " + score, 10, 30);
+            gc.fillText("Health: " + player.getHealth(), 10, 55);
+        } 
+        else {
+            gc.fillText("Score: " + score, 10, 30);
+            gc.fillText("Player health: " + player.getHealth(), 10, 55);
+            gc.fillText("Boss health: " + boss.getHealth(), 10, 80);
+        }
+        player.render(gc);
+        for (int i = enemies.size() - 1; i >= 0; i--) {
+            enemies.get(i).render(gc);
+        }
+        for (int i = bullets.size() - 1; i >= 0; i--) {
+            bullets.get(i).render(gc);
+        }
+        if(!up.isEmpty())
+        up.get(0).render(gc);
+        if (bossExists && boss != null) {
+            boss.render(gc);
             for (int i = eBullets.size()-1; i >= 0; i--) {
                 eBullets.get(i).render(gc);
             }
             for (int i = moon.size()-1; i >= 0; i--) {
                 moon.get(i).render(gc);
             }
-    }
-    if (levelUpShown > 0) {
-        showTempMessage("   LEVEL UP!", player.x+20, player.y-10);
-    }
+        }
+        if (levelUpShown > 0) {
+            showTempMessage("   LEVEL UP!", player.x+20, player.y-10);
+        }
     }
     
     protected void gameupdate(double elapsedTime) {
@@ -172,8 +172,6 @@ public class SpaceShooter extends Application {
             if (bossExists && boss != null) {
                 boss.update();
                 bossExists = !boss.isDead();
-                if (boss.health <= 0)
-                    boss.exploding = true;
                 if (boss.health == 40 && moon.size() < 2)
                     boss.phase(moon, 2);
                 if (boss.health == 30 && moon.size() < 4)
@@ -213,7 +211,7 @@ public class SpaceShooter extends Application {
     }
 
     private void spawnEnemy() {
-        if (Math.random() < 0.0015 * score + 0.01) {
+        if (Math.random() < 0.0015 * score + 0.05) {
             enemies.add(new Enemy(new Random().nextInt(470) + 2, 0));
         }
 
@@ -229,7 +227,7 @@ public class SpaceShooter extends Application {
         for (int i = enemies.size() - 1; i >= 0; i--) {
             enemies.get(i).setExploding(true);
         }
-        boss = new BossEnemy(0, 0);
+        boss = new BossEnemy(200, 0);
         eBullets = new ArrayList<>();
         moon = new ArrayList<>();
         bossExists = true;

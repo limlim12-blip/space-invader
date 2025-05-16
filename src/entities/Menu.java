@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
@@ -30,6 +31,8 @@ public class Menu {
         System.out.println("instructions");
         Parent a = FXMLLoader.load(getClass().getResource("/instruction.fxml"));
         Stage stage = new Stage();
+        stage .setTitle("INSTRUCTIONS!");
+        stage.getIcons().add(new Image("/boss.png"));
         stage.setScene(new Scene(a));
         stage.show();
     }

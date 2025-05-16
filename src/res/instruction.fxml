@@ -5,13 +5,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="513.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="entities.instruction">
+<AnchorPane fx:id="pane" maxHeight="371.0" maxWidth="500.0" minHeight="371.0" minWidth="500.0" prefHeight="371.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="entities.instruction">
    <children>
-      <ImageView fitHeight="376.0" fitWidth="500.0" layoutX="8.0" layoutY="12.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="376.0" fitWidth="500.0" layoutY="-5.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@instructions.png" />
          </image>
       </ImageView>
-      <Button fx:id="OK" layoutX="393.0" layoutY="334.0" mnemonicParsing="false" onAction="#clickOK" prefHeight="51.0" prefWidth="106.0" text="OK" />
+      <Button fx:id="OK" layoutX="381.0" layoutY="319.0" mnemonicParsing="false" onAction="#clickOK" prefHeight="43.0" prefWidth="117.0" text="OK" />
    </children>
 </AnchorPane>
