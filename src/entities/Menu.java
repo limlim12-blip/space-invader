@@ -34,6 +34,7 @@ public class Menu {
         stage .setTitle("INSTRUCTIONS!");
         stage.getIcons().add(new Image("/boss.png"));
         stage.setScene(new Scene(a));
+        stage.setResizable (false);
         stage.show();
     }
 

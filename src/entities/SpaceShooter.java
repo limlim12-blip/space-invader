@@ -60,6 +60,7 @@ public class SpaceShooter extends Application {
         window.setTitle("SPACE-INVADER");
         window.getIcons().add(new Image("/boss.png"));
         window.setScene(new Scene(createMenu()));
+        window.setResizable (false);
         window.show();
 
         // TODO: initialize primaryStage, scene, canvas, UI labels, root pane
