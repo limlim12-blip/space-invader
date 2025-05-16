@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /**
  * Skeleton for Enemy. Students must implement movement, rendering,
@@ -18,6 +20,7 @@ public class Enemy extends GameObject {
     ArrayList<Enemy> enemies=new ArrayList<>();
     static final Image ENEMY_IMAGE = new Image(Enemy.class.getResourceAsStream("/enemy.png"));
     static final Image EXPLOSION_IMAGE = new Image(Enemy.class.getResourceAsStream("/explosion.png"));
+    MediaPlayer boom = new MediaPlayer(new Media(getClass().getResource("/explosion.mp3").toExternalForm()));
     // Movement speed
     public static double SPEED = 5;
 
@@ -36,6 +39,7 @@ public class Enemy extends GameObject {
     public Enemy(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
         setDead(false);
+        boom.setRate(4.0);
     }
 
     /**
@@ -63,6 +67,7 @@ public class Enemy extends GameObject {
 
     }
     public void setExploding(boolean exploding) {
+        boom.play();
         this.exploding = exploding;
         explosionStep = 0;
     }

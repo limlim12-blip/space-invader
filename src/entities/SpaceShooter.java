@@ -1,6 +1,8 @@
 package entities;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +15,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.input.KeyCode;
@@ -38,12 +43,16 @@ public class SpaceShooter extends Application {
     private boolean gameOver;
     private Player player;
 
+    
     List<Enemy> enemies;
     List<Bullet> bullets;
     List<PowerUp> up;   
     BossEnemy boss;
     List<EnemyBullet> eBullets;
     List<satellite> moon;
+    MediaPlayer themep = new MediaPlayer(new Media(getClass().getResource("/starwar.mp3").toExternalForm()));
+    MediaPlayer victoryp = new MediaPlayer(new Media(getClass().getResource("/Victory.mp3").toExternalForm()));
+    MediaPlayer deadp = new MediaPlayer(new Media(getClass().getResource("/dead.mp3").toExternalForm()));
     // TODO: Declare UI labels, lists of GameObjects, player, root Pane, Scene, Stage
 
     public static void main(String[] args) {
@@ -359,15 +368,25 @@ public class SpaceShooter extends Application {
 
     // UI and game state methods
 
-    private void showLosingScreen() throws IOException {
-        FXMLLoader root = new FXMLLoader(getClass().getResource("/losing.fxml"));
-        Pane a = root.load();
-        Losing men = root.getController();
-        men.setGame(this);
-        men.setScore1(score);
-        window.setScene(new Scene(a));
+private void showLosingScreen() throws IOException {
+    // Load FXML
+    FXMLLoader loader = new FXMLLoader(getClass().getResource("/losing.fxml"));
+    Pane losingPane = loader.load();
+    deadp.play();
 
-    }
+    // Get controller and inject game reference + score
+    Losing controller = loader.getController();
+    controller.setGame(this);
+    controller.setScore1(score);
+    MediaView mediaView = new MediaView(victoryp);
+    losingPane.getChildren().add(mediaView);
+    victoryp.setCycleCount(MediaPlayer.INDEFINITE);
+    victoryp.play();
+    // Set scene
+    Scene scene = new Scene(losingPane);
+    window.setScene(scene);
+}
+
 
     private void restartGame() {
         // TODO: reset gameObjects, lives, score and switch back to game scene
@@ -401,6 +420,10 @@ public class SpaceShooter extends Application {
             a = root.load();
             Menu men = root.getController();
             men.setGame(this);
+            themep.setCycleCount(MediaPlayer.INDEFINITE);
+            MediaView theme = new MediaView(themep);
+            a.getChildren().add(theme);
+            themep.play();
             return a;
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -415,19 +438,18 @@ public class SpaceShooter extends Application {
         try {
             Pane a=FXMLLoader.load(getClass().getResource("/pause.fxml"));
             Scene scene = new Scene(a);
-             scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.SPACE) {
+            scene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.SPACE) {
                     window.setScene(gameScene);
                     gameRunning = true;
                     timer.start();
-            }
-
-            if (event.getCode() == KeyCode.ESCAPE) {
+                }
+                
+                if (event.getCode() == KeyCode.ESCAPE) {
                     window.setScene(new Scene(createMenu()));
                     gameRunning = true;
-                 }
-             });
-            
+                }
+            });
             window.setScene(scene);
             a.requestFocus();
         } catch (IOException e) {

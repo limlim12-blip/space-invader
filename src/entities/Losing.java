@@ -38,6 +38,8 @@ public class Losing {
 
         System.out.println("tryagain");
         this.game.startGame();
+        this.game.themep.stop();;
+        this.game.victoryp.stop();;
     }
 
 }

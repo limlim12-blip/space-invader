@@ -42,6 +42,7 @@ public class Menu {
     void clickStart(ActionEvent event){
         System.out.println("start");
         this.game.startGame();
+        this.game.themep.stop();;
     }
 
     @FXML

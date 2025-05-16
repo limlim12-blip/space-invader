@@ -24,6 +24,7 @@
                     <include>**/*.PNG</include>
                     <include>**/*.fxml</include>
                     <include>**/*.jpg</include>
+                    <include>**/*.mp3</include>
                 </includes>
             </resource>
         </resources>
@@ -61,6 +62,13 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

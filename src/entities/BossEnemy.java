@@ -6,6 +6,8 @@ import java.util.Random;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /**
  * Skeleton for BossEnemy. Students must implement behavior
@@ -66,6 +68,7 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
+        boom.setRate(4.0);
         setHealth(10);
         setDead(false);
         phase = 0;
