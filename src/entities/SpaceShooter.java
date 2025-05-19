@@ -206,10 +206,10 @@ public class SpaceShooter extends Application {
             }
             if (boss != null && boss.exploding) {
                 for (int i = eBullets.size() - 1; i >= 0; i--) {
-                    eBullets.get(i).setExploding(true);
+                    eBullets.get(i).setDead(true);;
                 }
                 for (int i = moon.size() - 1; i >= 0; i--) {
-                    moon.get(i).setExploding(true);
+                    moon.get(i).setDead(true);;
                     
                 }
             }
