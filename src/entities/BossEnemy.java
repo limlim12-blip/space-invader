@@ -8,6 +8,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.util.Duration;
 
 /**
  * Skeleton for BossEnemy. Students must implement behavior
@@ -26,8 +27,8 @@ class satellite extends Enemy
             
         
         time += 0.05*((51-(double)boss.health)/10);
-        x = boss.centerX() + 180 * Math.cos(time);
-        y = boss.centerY() + 180 * Math.sin(time);
+        x = boss.centerX() + 220 * Math.cos(time);
+        y = boss.centerY() + 220 * Math.sin(time);
         }
     }
     @Override
@@ -46,6 +47,10 @@ class satellite extends Enemy
     public void update() {
         return;
     }
+    @Override
+    public void setExploding(boolean exploding) {
+        this.exploding = exploding;
+    }
 }
 public class BossEnemy extends Enemy {
 
@@ -58,6 +63,7 @@ public class BossEnemy extends Enemy {
     private static final int HEIGHT = 100;
     int phase;
 
+    Media dead = new Media(getClass().getResource("/explosion.mp3").toExternalForm());
     // Horizontal movement speed
     private double FireRate=50;
     static final Image BOSS_IMAGE = new Image(BossEnemy.class.getResourceAsStream("/boss.png"));
@@ -68,7 +74,6 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        boom.setRate(4.0);
         setHealth(10);
         setDead(false);
         phase = 0;
@@ -81,12 +86,11 @@ public class BossEnemy extends Enemy {
     public void update() {
         if(!exploding){
         time += (((double)(new Random().nextInt(8)+3))/100)*((51-(double)this.health)/40);
-        x = 200 + 70 * Math.sin(1.5 * time) + 150 * Math.sin(1.1 * time);
-        y = 600 * Math.pow(Math.sin(0.4 * time), 2) + 175 * Math.abs(Math.sin(0.9 * time));
+        x = 200 + 70 * Math.sin(1.5 * time) + 150 * Math.sin(1.1 * time)*Math.cos(time*1.5);
+        y = 600 * Math.pow(Math.sin(1.1 * time), 2) + 175 * Math.abs(Math.sin(1.9 * time)*Math.cos(time*0.2));
         FireRate--;
-    }
-        if(explosionStep>=30)
-        setDead(true);
+        }   
+        setDead(explosionStep>=30);
     }
 
 
@@ -95,7 +99,19 @@ public class BossEnemy extends Enemy {
      */
     public void takeDamage() {
         health--;
-        setExploding(health<=0);
+        if (health <= 0) {
+            setExploding(true);
+
+        }
+
+    }
+    @Override
+    public void setExploding(boolean exploding) {
+        MediaPlayer dead1 = new MediaPlayer(dead);
+        dead1.seek(Duration.millis(0));
+        dead1.play();
+        this.exploding = exploding;
+        explosionStep = 0;
     }
 
     /**
@@ -116,11 +132,11 @@ public class BossEnemy extends Enemy {
     public void phase(List<satellite> moon,int count) {
         moon.clear();
     for (int i = 0; i < count; i++) {
-        double angle = 2 * Math.PI * i / count - Math.PI / 2; // Rotate so first satellite is at top
+        double angle = 2 * Math.PI * i / count - Math.PI / 2; 
         double x = centerX() + 180 * Math.cos(angle);
         double y = centerY() + 180 * Math.sin(angle);
         moon.add(new satellite(x, y,angle));
-        System.out.println("Satellite at: " + x + ", " + y);
+        System.out.println( x + ", " + y);
 }
     }
 

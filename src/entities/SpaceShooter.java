@@ -88,7 +88,7 @@ public class SpaceShooter extends Application {
 
             @Override
             public void handle(long now) {
-                if (now - lastUpdate >= 20_666_667) {
+                    if (now - lastUpdate >= 20_666_667) {
                     double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
                     if (player.getHealth() <= 0) {
                         gameOver = true;
@@ -151,7 +151,7 @@ public class SpaceShooter extends Application {
     
     protected void gameupdate(double elapsedTime) {
         if (!gameOver) {
-            if (score == 1 && !bossExists) {
+            if (score == 2 && !bossExists) {
                 spawnBossEnemy();
             }
             player.update();
@@ -221,7 +221,7 @@ public class SpaceShooter extends Application {
     }
 
     private void spawnEnemy() {
-        if (Math.random() < 0.0015 * score + 0.05) {
+        if (Math.random() < 0.00015 * score + 0.03) {
             enemies.add(new Enemy(new Random().nextInt(470) + 2, 0));
         }
 
@@ -249,8 +249,8 @@ public class SpaceShooter extends Application {
                 if (!enemy.exploding) {
                     player.setHealth(player.getHealth() - 1);
                     player.setTakingdame(true);
+                    enemy.setExploding(true);
                 }
-                enemy.setExploding(true);
             }
 
             for (Bullet bullet : bullets) {
@@ -258,8 +258,8 @@ public class SpaceShooter extends Application {
                     if (!enemy.exploding) {
                         score++;
                         bullet.setDead(true);
+                        enemy.setExploding(true);
                     }
-                    enemy.setExploding(true);
 
                 }
             }
@@ -287,10 +287,9 @@ public class SpaceShooter extends Application {
             for (Bullet bullet : bullets) {
                 if (bullet.getBounds().intersects(boss.getBounds())) {
                     if (!bullet.exploding&&!boss.exploding) {
-                        score++;
+                        if(Math.random()<0.1) score++;
                         bullet.setExploding(true);
                         boss.takeDamage();
-                        bullet.setExploding(true);
                     }
 
                 }
@@ -299,7 +298,7 @@ public class SpaceShooter extends Application {
                         if (!bullet.exploding||eBullets.get(i).exploding) {
                             bullet.setExploding(true);
                             eBullets.remove(i);
-                            score++;
+                            if(Math.random()<0.05) score++;
                         }
                     }
                 }

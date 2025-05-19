@@ -20,11 +20,11 @@ public class Player extends GameObject{
     static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/player.png"));
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
     static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
-    MediaPlayer SHOOT  = new MediaPlayer(new Media(getClass().getResource("/shoot.mp3").toExternalForm()));
+    Media SHOOT  = new Media(getClass().getResource("/shoot.mp3").toExternalForm());
     // Movement speed
-    private static double SPEED = 10;
-    public int FireRate;
-    public int FIRE_RATE=10;
+    private double SPEED = 9;
+    public double FireRate;
+    public double FIRE_RATE=10;
 
     // Movement flags w w
     private boolean moveLeft;
@@ -103,9 +103,9 @@ public class Player extends GameObject{
     }
     public void Powerup() {
         if(FIRE_RATE>5)
-        FIRE_RATE -=1;
-        if(SPEED<30)
-        this.SPEED +=1;
+        FIRE_RATE -=0.3;
+        if(SPEED<20)
+        this.SPEED +=0.3;
         setHealth(health+2);
     }
     public void setTakingdame(boolean takingdame) {
@@ -147,8 +147,10 @@ public class Player extends GameObject{
         if(FireRate<=0){
             bullets.add(new Bullet(x+WIDTH/2-4, y - HEIGHT / 2));
             FireRate = FIRE_RATE;
-            SHOOT.seek(Duration.millis(26));
-            SHOOT.play();
+
+            MediaPlayer mediaPlayer = new MediaPlayer(SHOOT);
+            mediaPlayer.seek(Duration.millis(26));
+            mediaPlayer.play();
         }
     }
     
@@ -161,7 +163,7 @@ public class Player extends GameObject{
      */
     public Player(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        setHealth(5);
+        setHealth(100);
         setDead(false);
         
     }

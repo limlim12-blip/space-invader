@@ -2,7 +2,10 @@ package entities;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 /**
  * Skeleton for Bullet. Students must implement movement,
@@ -15,12 +18,13 @@ public class Bullet extends GameObject {
     public static final int HEIGHT = 17;
 
     // Movement speed of the bullet
-    private static final double SPEED = 7;
+    private static final double SPEED = 30;
     public boolean exploding;
     public int explosionStep = 0;
     // Flag to indicate if bullet should be removed
     private boolean dead;
 
+    Media boom = new Media(getClass().getResource("/explosion1.mp3").toExternalForm());
     static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
     /**
      * Constructs a Bullet at the given position.
@@ -37,7 +41,7 @@ public class Bullet extends GameObject {
      */
     @Override
     public void update() {
-        y -= SPEED;
+        if(!exploding) y -= SPEED;
         if (explosionStep >= 15) {
             setDead(true);
         }
@@ -61,7 +65,12 @@ public class Bullet extends GameObject {
     }
 
     public void setExploding(boolean exploding) {
+        MediaPlayer boom1 = new MediaPlayer(boom);
+        boom1.setRate(4.0);
+        boom1.seek(Duration.millis(0));
+        boom1.play();
         this.exploding = exploding;
+        explosionStep = 0;
     }
     /**
      * Returns current width of the bullet.
