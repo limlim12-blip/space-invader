@@ -1,8 +1,6 @@
 package entities;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -151,7 +149,7 @@ public class SpaceShooter extends Application {
     
     protected void gameupdate(double elapsedTime) {
         if (!gameOver) {
-            if (score == 2 && !bossExists) {
+            if (score!=0&&score %20 == 0 && !bossExists) {
                 spawnBossEnemy();
             }
             player.update();
@@ -479,11 +477,14 @@ private void showLosingScreen() throws IOException {
     }
 
     private void handleKeyPress(KeyEvent event) {
-        if (event.getCode() == KeyCode.LEFT)
-            player.setMoveLeft(true);
+        if (event.getCode() == KeyCode.LEFT) player.setMoveLeft(true);
         if (event.getCode() == KeyCode.RIGHT)player.setMoveRight(true);
         if (event.getCode() == KeyCode.UP)player.setMoveForward(true);
         if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(true);
+        if (event.getCode() == KeyCode.A) player.setMoveLeft(true);
+        if (event.getCode() == KeyCode.D)player.setMoveRight(true);
+        if (event.getCode() == KeyCode.W)player.setMoveForward(true);
+        if (event.getCode() == KeyCode.S)player.setMoveBackward(true);
         if (event.getCode() == KeyCode.SPACE) { player.setShooting(true); }
         if (event.getCode() == KeyCode.ESCAPE) { if(gameRunning) pause(); }
     }
@@ -493,6 +494,10 @@ private void showLosingScreen() throws IOException {
         if (event.getCode() == KeyCode.RIGHT)player.setMoveRight(false);
         if (event.getCode() == KeyCode.UP)player.setMoveForward(false);
         if (event.getCode() == KeyCode.DOWN)player.setMoveBackward(false);
+        if (event.getCode() == KeyCode.A) player.setMoveLeft(false);
+        if (event.getCode() == KeyCode.D)player.setMoveRight(false);
+        if (event.getCode() == KeyCode.W)player.setMoveForward(false);
+        if (event.getCode() == KeyCode.S)player.setMoveBackward(false);
         if (event.getCode() == KeyCode.SPACE)player.setShooting(false);
     }
 }

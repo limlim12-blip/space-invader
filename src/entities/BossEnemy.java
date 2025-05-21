@@ -74,7 +74,7 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        setHealth(10);
+        setHealth(50);
         setDead(false);
         phase = 0;
     }
@@ -119,13 +119,13 @@ public class BossEnemy extends Enemy {
      * @param newObjects list to which new bullets are added
      */
     public void shoot(List<EnemyBullet> newObjects) {
-        if (FireRate <= 0&&y<200) {
+        if (FireRate <= 0) {
             double angle = (new Random().nextInt(10)+10)/10;
             newObjects.add( new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI * 3 / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI * 3 / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle)));
-            FireRate = new Random().nextInt(50)+50;
+            FireRate = new Random().nextInt(50)+25;
         }
     }
 

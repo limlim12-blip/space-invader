@@ -163,7 +163,7 @@ public class Player extends GameObject{
      */
     public Player(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        setHealth(100);
+        setHealth(20);
         setDead(false);
         
     }
