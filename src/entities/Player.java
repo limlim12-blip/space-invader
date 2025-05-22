@@ -21,6 +21,7 @@ public class Player extends GameObject{
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
     static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
     Media SHOOT  = new Media(getClass().getResource("/shoot.mp3").toExternalForm());
+    Media boom = new Media(getClass().getResource("/explosion1.mp3").toExternalForm());
     // Movement speed
     private double SPEED = 9;
     public double FireRate;
@@ -111,6 +112,9 @@ public class Player extends GameObject{
     public void setTakingdame(boolean takingdame) {
         this.takingdame = takingdame;
         takingdamestep = 0;
+        MediaPlayer boom1 = new MediaPlayer(boom);
+        boom1.seek(Duration.millis(0));
+        boom1.play();
     }
     public void setExploding(boolean exploding) {
         this.exploding = exploding;
