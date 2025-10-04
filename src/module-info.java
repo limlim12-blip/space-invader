@@ -4,7 +4,8 @@ module spaceinvader {
     requires javafx.graphics;
     requires javafx.base;
     requires javafx.media;
-
-    opens entities to javafx.fxml;
+    requires py4j;
+    opens gamestate to javafx.fxml;
+    exports  gamestate;
     exports  entities;
 }

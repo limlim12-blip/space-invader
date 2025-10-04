@@ -2,56 +2,16 @@ package entities;
 
 import java.util.List;
 import java.util.Random;
-
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-import javafx.util.Duration;
+// import javafx.scene.media.Media;
+// import javafx.scene.media.MediaPlayer;
+// import javafx.util.Duration;
 
 /**
- * Skeleton for BossEnemy. Students must implement behavior
- * without viewing the original implementation.
+ * Skeleton for BossEnemy.
  */
-class satellite extends Enemy
-{
-
-    double time=0;
-    public satellite(double x, double y,double angle) {
-        super(x, y);
-        this.time = angle;
-    }
-    public void up(BossEnemy boss) {
-        if (!boss.exploding||!exploding) {
-            
-        
-        time += 0.05*((51-(double)boss.health)/10);
-        x = boss.centerX() + 220 * Math.cos(time);
-        y = boss.centerY() + 220 * Math.sin(time);
-        }
-    }
-    @Override
-    public void render(GraphicsContext gc) {
-         if (exploding&&explosionStep<=15) {
-            gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 80, 80);
-            explosionStep += 1;
-        }
-        else
-            setExploding(false);
-           
-        if(!exploding) gc.drawImage(ENEMY_IMAGE, x, y,WIDTH,HEIGHT);
-    }
-
-    @Override
-    public void update() {
-        return;
-    }
-    @Override
-    public void setExploding(boolean exploding) {
-        this.exploding = exploding;
-    }
-}
 public class BossEnemy extends Enemy {
 
     // Health points of the boss
@@ -63,7 +23,7 @@ public class BossEnemy extends Enemy {
     private static final int HEIGHT = 100;
     int phase;
 
-    Media dead = new Media(getClass().getResource("/explosion.mp3").toExternalForm());
+    // Media dead = new Media(getClass().getResource("/explosion.mp3").toExternalForm());
     // Horizontal movement speed
     private double FireRate=50;
     static final Image BOSS_IMAGE = new Image(BossEnemy.class.getResourceAsStream("/boss.png"));
@@ -74,7 +34,7 @@ public class BossEnemy extends Enemy {
      */
     public BossEnemy(double x, double y) {
         super(x, y);
-        setHealth(10);
+        setHealth(50);
         setDead(false);
         phase = 0;
     }
@@ -107,9 +67,9 @@ public class BossEnemy extends Enemy {
     }
     @Override
     public void setExploding(boolean exploding) {
-        MediaPlayer dead1 = new MediaPlayer(dead);
-        dead1.seek(Duration.millis(0));
-        dead1.play();
+        // MediaPlayer dead1 = new MediaPlayer(dead);
+        // dead1.seek(Duration.millis(0));
+        // dead1.play();
         this.exploding = exploding;
         explosionStep = 0;
     }
@@ -119,23 +79,23 @@ public class BossEnemy extends Enemy {
      * @param newObjects list to which new bullets are added
      */
     public void shoot(List<EnemyBullet> newObjects) {
-        if (FireRate <= 0&&y<200) {
+        if (FireRate <= 0) {
             double angle = (new Random().nextInt(10)+10)/10;
             newObjects.add( new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI * 3 / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI * 3 / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle)));
-            FireRate = new Random().nextInt(50)+50;
+            FireRate = new Random().nextInt(50)+25;
         }
     }
 
-    public void phase(List<satellite> moon,int count) {
+    public void phase(List<Satellite> moon,int count) {
         moon.clear();
     for (int i = 0; i < count; i++) {
         double angle = 2 * Math.PI * i / count - Math.PI / 2; 
         double x = centerX() + 180 * Math.cos(angle);
         double y = centerY() + 180 * Math.sin(angle);
-        moon.add(new satellite(x, y,angle));
+        moon.add(new Satellite(x, y,angle));
         System.out.println( x + ", " + y);
 }
     }
@@ -162,11 +122,11 @@ public class BossEnemy extends Enemy {
     }
     @Override
     public double getHeight() {
-        return this.HEIGHT;
+        return HEIGHT;
     }
     @Override
     public double getWidth() {
-        return this.WIDTH;
+        return WIDTH;
     }
 
     public double centerX() {

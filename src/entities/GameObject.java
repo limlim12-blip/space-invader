@@ -1,5 +1,6 @@
 package entities;
 
+import gamestate.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Bounds;
 

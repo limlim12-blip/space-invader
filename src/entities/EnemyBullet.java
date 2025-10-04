@@ -1,7 +1,9 @@
 package entities;
 
+import gamestate.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 
 /**
  * Skeleto for EnemyBullet. Students must implement movement,
@@ -10,8 +12,8 @@ import javafx.scene.image.Image;
 public class EnemyBullet extends GameObject {
 
     // Dimensions of the enemy bullet
-    public static final int WIDTH = 25;
-    public static final int HEIGHT = 25;
+    public static final int WIDTH = 10;
+    public static final int HEIGHT = 10;
 
     // Movement speed of the bullet
     private static final double SPEED = 3;
@@ -54,8 +56,9 @@ public class EnemyBullet extends GameObject {
             explosionStep += 2;
         } 
         else {
-            gc.drawImage(BOMB_IMAGE, x, y,WIDTH,HEIGHT);
-            }
+            gc.setFill(Color.YELLOW);
+            gc.fillOval(x, y, WIDTH, HEIGHT);
+        }
     }
 
     public void setExploding(boolean exploding) {

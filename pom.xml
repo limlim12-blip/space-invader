@@ -11,11 +11,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <javafx.version>17.0.1</javafx.version>
+        <javafx.version>23.0.1</javafx.version>
     </properties>
 
     <build>
-        <!-- 👇 Tell Maven to use src/ as source root -->
         <resources>
             <resource>
                 <directory>src/res</directory>
@@ -28,10 +27,11 @@
                 </includes>
             </resource>
         </resources>
+
         <sourceDirectory>src</sourceDirectory>
 
         <plugins>
-            <!-- Java compiler -->
+            <!-- normal compile -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -41,14 +41,13 @@
                 </configuration>
             </plugin>
 
-            <!-- JavaFX plugin -->
+            <!-- JavaFX launcher -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>entities.SpaceShooter</mainClass>
-                    <modulePath>${project.build.outputDirectory}</modulePath>
+                    <mainClass>gamestate.SpaceShooter</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -57,6 +56,16 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Py4J Gateway launcher -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>gamestate.SpaceShooter</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -68,7 +77,11 @@
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>net.sf.py4j</groupId>
+            <artifactId>py4j</artifactId>
+            <version>0.10.9.5</version> 
+        </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

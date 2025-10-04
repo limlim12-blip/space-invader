@@ -1,11 +1,12 @@
 package entities;
 
+import gamestate.*;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+// import javafx.scene.media.Media;
+// import javafx.scene.media.MediaPlayer;
 
-import javafx.util.Duration;
+// import javafx.util.Duration;
 import java.util.List;
 
 /**
@@ -20,7 +21,8 @@ public class Player extends GameObject{
     static final Image PLAYER_IMAGE = new Image(Player.class.getResourceAsStream("/player.png"));
     static final Image DAMAGED_IMAGE = new Image(Player.class.getResourceAsStream("/damged.PNG"));
     static final Image EXPLOSION_IMAGE = new Image(Bullet.class.getResourceAsStream("/explosion.png"));
-    Media SHOOT  = new Media(getClass().getResource("/shoot.mp3").toExternalForm());
+    // Media SHOOT  = new Media(getClass().getResource("/shoot.mp3").toExternalForm());
+    // Media boom = new Media(getClass().getResource("/explosion1.mp3").toExternalForm());
     // Movement speed
     private double SPEED = 9;
     public double FireRate;
@@ -37,7 +39,7 @@ public class Player extends GameObject{
 
     // State flag for removal
     private boolean dead;
-    boolean shooting=false;
+    public boolean shooting=false;
     public boolean takingdame;
     public int takingdamestep;
     public boolean exploding;
@@ -111,6 +113,9 @@ public class Player extends GameObject{
     public void setTakingdame(boolean takingdame) {
         this.takingdame = takingdame;
         takingdamestep = 0;
+        // MediaPlayer boom1 = new MediaPlayer(boom);
+        // boom1.seek(Duration.millis(0));
+        // boom1.play();
     }
     public void setExploding(boolean exploding) {
         this.exploding = exploding;
@@ -148,9 +153,9 @@ public class Player extends GameObject{
             bullets.add(new Bullet(x+WIDTH/2-4, y - HEIGHT / 2));
             FireRate = FIRE_RATE;
 
-            MediaPlayer mediaPlayer = new MediaPlayer(SHOOT);
-            mediaPlayer.seek(Duration.millis(26));
-            mediaPlayer.play();
+            // MediaPlayer mediaPlayer = new MediaPlayer(SHOOT);
+            // mediaPlayer.seek(Duration.millis(26));
+            // mediaPlayer.play();
         }
     }
     
@@ -163,7 +168,7 @@ public class Player extends GameObject{
      */
     public Player(double x, double y) {
         super(x, y, WIDTH, HEIGHT);
-        setHealth(100);
+        setHealth(20);
         setDead(false);
         
     }
