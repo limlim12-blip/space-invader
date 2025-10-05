@@ -57,7 +57,7 @@ public class SpaceShooter extends Application {
     List<EnemyBullet> eBullets;
     List<Satellite> moon;
     Canvas canvas = new Canvas(WIDTH, HEIGHT);
-    //? MediaPlayer conflict with linux 
+                                                //! MediaPlayer conflict with linux 
     // MediaPlayer themep = new MediaPlayer(new Media(getClass().getResource("/starwar.mp3").toExternalForm()));
     // MediaPlayer victoryp = new MediaPlayer(new Media(getClass().getResource("/Victory.mp3").toExternalForm()));
     // MediaPlayer deadp = new MediaPlayer(new Media(getClass().getResource("/dead.mp3").toExternalForm()));
@@ -93,13 +93,12 @@ public class SpaceShooter extends Application {
     }
     // Game mechanics stubs
     AnimationTimer timer;
-    boolean nextFrame = false;
     private void gameloop(GraphicsContext gc) {
         timer = new AnimationTimer() {
             long lastUpdate = 0;
             @Override
             public void handle(long now) {
-                    if (nextFrame &&now - lastUpdate >= 20_666_667) {   //! wait until pp say go 
+                    if (now - lastUpdate >= 0) {   
                     double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
                     if (player.getHealth() <= 0) {
                         gameOver = true;
@@ -114,7 +113,6 @@ public class SpaceShooter extends Application {
                     gameupdate(elapsedTime);
                     gamerender(gc);
                     lastUpdate = now;
-                    nextFrame = false;
                 }
             }
         };
@@ -123,7 +121,6 @@ public class SpaceShooter extends Application {
     }
     public void step(GraphicsContext gc, double elapsedTime, int action) {
         this.Action(action);
-        nextFrame = true;
     }
 
     protected void gamerender(GraphicsContext gc) {
@@ -452,13 +449,13 @@ public class SpaceShooter extends Application {
     private void showLosingScreen() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/losing.fxml"));
         Pane losingPane = loader.load();
-        // deadp.play();
-
+        
         // Get controller and inject game reference + score
         Losing controller = loader.getController();
         controller.setGame(this);
         controller.setScore1(score);
-        // MediaView mediaView = new MediaView(victoryp);
+        // deadp.play(); 
+        // MediaView mediaView = new MediaView(victoryp);                //! conflict with linux
         // losingPane.getChildren().add(mediaView);
         // victoryp.setCycleCount(MediaPlayer.INDEFINITE);
         // victoryp.play();
@@ -565,5 +562,8 @@ public class SpaceShooter extends Application {
     }
     public List<EnemyBullet> geteBullets() {
         return eBullets;
+    }
+    public List<PowerUp> getUp() {
+        return up;
     }
 }

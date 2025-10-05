@@ -14,7 +14,7 @@ class SpaceInvaderEnv(gym.Env):
         self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=25333))
         self.game_java = self.gateway.entry_point
 
-        obs_dim = 6  
+        obs_dim = 7  
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(obs_dim,), dtype=np.float32)
 
         #[0: stay, 1: move left, 2: move right, 3: shoot]
@@ -22,12 +22,14 @@ class SpaceInvaderEnv(gym.Env):
 
         self.state = None
 
+
     def get_obs(self):
         self.player = self.game_java.getPlayer()
         self.enemies = self.game_java.getEnemies()
         self.boss = self.game_java.getBoss()
         self.Moon = self.game_java.getMoon()
         self.eBullets = self.game_java.geteBullets()
+        self.star = self.game_java.getUp()
 
         obs = np.concatenate((
             np.array([
@@ -35,7 +37,8 @@ class SpaceInvaderEnv(gym.Env):
                 self.player.getY(),
                 self.player.getHealth(),
                 1.0 if self.game_java.getGameOver() else 0.0,
-            ]),
+            ],dtype=np.uint8),
+            np.array(self.boss).flatten(),
             np.array(self.enemies).flatten(),
             np.array(self.Moon).flatten(),
             np.array(self.eBullets).flatten(),
@@ -68,7 +71,8 @@ class SpaceInvaderEnv(gym.Env):
 
     def close(self):
         self.gateway.close() 
-    def _get_reward(self):
+    def get_reward(self):
+        self.reward = self.game_java.getReward()
         return 1.0
         
 env = SpaceInvaderEnv()
