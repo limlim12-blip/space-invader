@@ -1,7 +1,7 @@
 
-import gym
-from gym import Env
-from gym import spaces
+import gymnasium as gym
+from gymnasium import Env
+from gymnasium import spaces
 import numpy as np
 import random
 from py4j.java_gateway import JavaGateway, GatewayParameters
@@ -12,7 +12,7 @@ class SpaceInvaderEnv(gym.Env):
         super(SpaceInvaderEnv, self).__init__()
 
         self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=25333))
-        self.game_java = self.gateway.entry_point.getGame()
+        self.game_java = self.gateway.entry_point
 
         obs_dim = 6  
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(obs_dim,), dtype=np.float32)
@@ -23,35 +23,33 @@ class SpaceInvaderEnv(gym.Env):
         self.state = None
 
     def get_obs(self):
-        player = self.game_java.getPlayer()
-        enemies = self.game_java.getEnemies()
-        boss = self.game_java.getBoss()
-        Moon = self.game_java.getMoon()
-        eBullets = self.game_java.geteBullets()
+        self.player = self.game_java.getPlayer()
+        self.enemies = self.game_java.getEnemies()
+        self.boss = self.game_java.getBoss()
+        self.Moon = self.game_java.getMoon()
+        self.eBullets = self.game_java.geteBullets()
 
-        obs = np.array([
-            player.getX(),
-            player.getY(),
-            len(enemies),
-            len(Moon),
-            len(eBullets),
-            boss.getHealth() if boss else 0,
-            1.0 if self.game_java.getGameOver() else 0.0,
-        ], dtype=np.float32)
-
+        obs = np.concatenate((
+            np.array([
+                self.player.getX(),
+                self.player.getY(),
+                self.player.getHealth(),
+                1.0 if self.game_java.getGameOver() else 0.0,
+            ]),
+            np.array(self.enemies).flatten(),
+            np.array(self.Moon).flatten(),
+            np.array(self.eBullets).flatten(),
+        ))
         return obs
 
     def step(self, action):
         self.game_java.Action(int(action))
 
-        # Advance the Java game one frame / tick
-        self.game_java.updateFrame()
-
         # Get updated state
         self.state = self.get_obs()
 
         # Compute reward
-        reward = float(self.game_java.getReward())
+        reward = int(self.game_java.getReward())
 
         # Check done
         done = bool(self.game_java.getGameOver())
@@ -69,10 +67,8 @@ class SpaceInvaderEnv(gym.Env):
         return self.state, {}
 
     def close(self):
-        """Shutdown connection."""
         self.gateway.close() 
     def _get_reward(self):
-        # trivial reward for surviving
         return 1.0
         
 env = SpaceInvaderEnv()

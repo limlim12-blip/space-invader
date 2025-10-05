@@ -80,7 +80,7 @@ public class SpaceShooter extends Application {
         window.setScene(new Scene(createMenu()));
         window.setResizable (false);
         window.show();
-        GatewayServer gatewayServer = new GatewayServer(new SpaceShooter(), 25333);
+        GatewayServer gatewayServer = new GatewayServer(this, 25333);
         System.out.println("Gateway Server Started");
         gatewayServer.start();
         // TODO: initialize primaryStage, scene, canvas, UI labels, root pane
@@ -385,11 +385,9 @@ public class SpaceShooter extends Application {
 
     // Load FXML
 
-    private void resetGame() {
+    public void resetGame() {
         // TODO: reset gameObjects, lives, score and switch back to game scene
         gameRunning = true;
-        initEventHandlers(gameScene);
-        window.setScene(gameScene);
         enemies = new ArrayList<>();
         bullets = new ArrayList<>();
         up = new ArrayList<>();
@@ -484,6 +482,8 @@ public class SpaceShooter extends Application {
 
     public void startGame() {
         resetGame();
+        initEventHandlers(gameScene);
+        window.setScene(gameScene);
         gameloop(gc);
     }
 
@@ -520,7 +520,12 @@ public class SpaceShooter extends Application {
     int reward = 0;
     
     public int getReward() {
-        reward = (player.getHealth()-20)*3+score+boss.getHealth()-50;
+        int bosshealth = 50;
+        if (boss!=null)
+            bosshealth = boss.getHealth();
+        else
+            bosshealth = 50;
+        reward = (player.getHealth()-20)*3+score+(50-bosshealth);
         return reward;
         
     }
