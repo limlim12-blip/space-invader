@@ -31,6 +31,7 @@ public class Losing {
     void clickquit(ActionEvent event) {
         System.out.println("quit");
         this.game.window.close();
+        this.game.updateThread = null;
     }
 
     @FXML

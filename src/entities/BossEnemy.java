@@ -85,7 +85,7 @@ public class BossEnemy extends Enemy {
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle + Math.PI * 3 / 2), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle + Math.PI * 3 / 2)));
             newObjects.add(new EnemyBullet(centerX() + new Random().nextInt(50)+50 * Math.cos(time*angle), centerY() + new Random().nextInt(50)+50 * Math.sin(time*angle)));
-            FireRate = new Random().nextInt(50)+25;
+            FireRate = new Random().nextInt(50)+100;
         }
     }
 

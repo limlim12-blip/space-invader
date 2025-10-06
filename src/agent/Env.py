@@ -37,7 +37,7 @@ class SpaceInvaderEnv(gym.Env):
                 self.player.getY(),
                 self.player.getHealth(),
                 1.0 if self.game_java.getGameOver() else 0.0,
-            ],dtype=np.uint8),
+            ]),
             np.array(self.boss).flatten(),
             np.array(self.enemies).flatten(),
             np.array(self.Moon).flatten(),
@@ -62,12 +62,11 @@ class SpaceInvaderEnv(gym.Env):
 
         return self.state, reward, done, False, info
 
-    def reset(self, *, seed=None, options=None):
+    def reset(self):
         """Reset the Java game and return initial state."""
-        super().reset(seed=seed)
         self.game_java.resetGame()
         self.state = self.get_obs()
-        return self.state, {}
+        return self.state
 
     def close(self):
         self.gateway.close() 

@@ -26,7 +26,7 @@ public class Player extends GameObject{
     // Movement speed
     private double SPEED = 9;
     public double FireRate;
-    public double FIRE_RATE=10;
+    public double FIRE_RATE=20;
 
     // Movement flags w w
     private boolean moveLeft;
@@ -104,10 +104,10 @@ public class Player extends GameObject{
             gc.drawImage(PLAYER_IMAGE, x, y,WIDTH,HEIGHT);
     }
     public void Powerup() {
-        if(FIRE_RATE>5)
+        if(FIRE_RATE>10)
         FIRE_RATE -=0.3;
-        if(SPEED<20)
-        this.SPEED +=0.3;
+        if(SPEED<13)
+        this.SPEED +=0.25;
         setHealth(health+2);
     }
     public void setTakingdame(boolean takingdame) {

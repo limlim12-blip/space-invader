@@ -98,8 +98,7 @@ public class SpaceShooter extends Application {
             long lastUpdate = 0;
             @Override
             public void handle(long now) {
-                    if (now - lastUpdate >= 0) {   
-                    double elapsedTime = (now - lastUpdate) / 1_000_000_000.0;
+                if (now - lastUpdate >= 1_000_000_000/60 ){   
                     if (player.getHealth() <= 0) {
                         gameOver = true;
                         try {
@@ -110,7 +109,6 @@ public class SpaceShooter extends Application {
                             e.printStackTrace();
                         }
                     }
-                    gameupdate(elapsedTime);
                     gamerender(gc);
                     lastUpdate = now;
                 }
@@ -119,10 +117,47 @@ public class SpaceShooter extends Application {
         timer.start();
 
     }
+    
+    long HUMAN_MODE = 60; 
+    long AI_MODE = 1000; 
+    long FPS = 1_000_000_000 / AI_MODE;
+    public Thread updateThread;
+    
+ public void updateThread() {
+        updateThread = new Thread(() -> {
+            long lastUpdateTime = System.nanoTime();
+            long lag = 0;
+            while (gameRunning) {
+                long now = System.nanoTime();
+                long delta = now - lastUpdateTime; 
+                lastUpdateTime = now;
+                lag += delta;
+                
+                
+                while (lag >= FPS) {
+                    gameupdate(); 
+                    lag -=FPS;
+                }
+                if (lag > 0) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                
+            }
+        });
+        
+        updateThread.setDaemon(true);
+        updateThread.start();
+    }
     public void step(GraphicsContext gc, double elapsedTime, int action) {
         this.Action(action);
     }
-
+    
     protected void gamerender(GraphicsContext gc) {
         ImagePattern uni = new ImagePattern(new Image("/universe.jpg"));
         gc.setFill(uni);
@@ -162,7 +197,7 @@ public class SpaceShooter extends Application {
         }
     }
     
-    protected void gameupdate(double elapsedTime) {
+    protected void gameupdate() {
         if (!gameOver) {
             if (score!=0&&score %20 == 0 && !bossExists) {
                 spawnBossEnemy();
@@ -234,7 +269,7 @@ public class SpaceShooter extends Application {
     }
 
     private void spawnEnemy() {
-        if (Math.random() < 0.00005 * score + 0.03) {
+        if (Math.random() < 0.01 + (0.25 * Math.tanh(score / 1000.0))) {
             enemies.add(new Enemy(new Random().nextInt(470) + 2, 0));
         }
 
@@ -482,6 +517,7 @@ public class SpaceShooter extends Application {
         initEventHandlers(gameScene);
         window.setScene(gameScene);
         gameloop(gc);
+        updateThread();
     }
 
     public void Action(int action){
