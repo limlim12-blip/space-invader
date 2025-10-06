@@ -1,4 +1,5 @@
 
+import time
 import gymnasium as gym
 from gymnasium import Env
 from gymnasium import spaces
@@ -14,7 +15,7 @@ class SpaceInvaderEnv(gym.Env):
         self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=25333))
         self.game_java = self.gateway.entry_point
 
-        obs_dim = 7  
+        obs_dim = 10  
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(obs_dim,), dtype=np.float32)
 
         #[0: stay, 1: move left, 2: move right, 3: shoot]
@@ -26,22 +27,22 @@ class SpaceInvaderEnv(gym.Env):
     def get_obs(self):
         self.player = self.game_java.getPlayer()
         self.enemies = self.game_java.getEnemies()
-        self.boss = self.game_java.getBoss()
-        self.Moon = self.game_java.getMoon()
-        self.eBullets = self.game_java.geteBullets()
+        # self.boss = self.game_java.getBoss()
+        # self.Moon = self.game_java.getMoon()
+        # self.eBullets = self.game_java.geteBullets()
         self.star = self.game_java.getUp()
 
         obs = np.concatenate((
             np.array([
                 self.player.getX(),
-                self.player.getY(),
                 self.player.getHealth(),
                 1.0 if self.game_java.getGameOver() else 0.0,
             ]),
-            np.array(self.boss).flatten(),
+            # np.array(self.boss).flatten(),
             np.array(self.enemies).flatten(),
-            np.array(self.Moon).flatten(),
-            np.array(self.eBullets).flatten(),
+            # np.array(self.Moon).flatten(),
+            # np.array(self.eBullets).flatten(),
+            np.array(self.star).flatten(),
         ))
         return obs
 
@@ -64,9 +65,9 @@ class SpaceInvaderEnv(gym.Env):
 
     def reset(self):
         """Reset the Java game and return initial state."""
-        self.game_java.resetGame()
+        self.game_java.startGame()
         self.state = self.get_obs()
-        return self.state
+        return self.state, {}
 
     def close(self):
         self.gateway.close() 
@@ -74,10 +75,12 @@ class SpaceInvaderEnv(gym.Env):
         self.reward = self.game_java.getReward()
         return 1.0
         
-env = SpaceInvaderEnv()
-obs, info = env.reset()
-done = False
-while not done:
-    action = env.action_space.sample()
-    obs, reward, done, trunc, info = env.step(action)
-    print(obs, reward)                               
+for i in range(5):
+    env = SpaceInvaderEnv()
+    time.sleep(1)
+    obs, info = env.reset()
+    done = False
+    while not done:
+        action = env.action_space.sample()
+        obs, reward, done, trunc, info = env.step(action)
+        print(obs, reward)                               
