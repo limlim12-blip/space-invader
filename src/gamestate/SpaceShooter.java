@@ -2,7 +2,6 @@ package gamestate;
 import py4j.GatewayServer;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -30,7 +29,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -47,7 +45,6 @@ public class SpaceShooter extends Application {
     private boolean bossExists=false;
     private int score;
     private int levelUpShown;
-    private boolean reset;
     private boolean gameRunning;
     private boolean gameOver;
     private Player player;
@@ -63,7 +60,6 @@ public class SpaceShooter extends Application {
     // MediaPlayer themep = new MediaPlayer(new Media(getClass().getResource("/starwar.mp3").toExternalForm()));
     // MediaPlayer victoryp = new MediaPlayer(new Media(getClass().getResource("/Victory.mp3").toExternalForm()));
     // MediaPlayer deadp = new MediaPlayer(new Media(getClass().getResource("/dead.mp3").toExternalForm()));
-    // TODO: Declare UI labels, lists of GameObjects, player, root Pane, Scene, Stage
     
     public static void main(String[] args) {
         launch(args);
@@ -85,13 +81,6 @@ public class SpaceShooter extends Application {
         GatewayServer gatewayServer = new GatewayServer(this, 25333);
         System.out.println("Gateway Server Started");
         gatewayServer.start();
-        // TODO: initialize primaryStage, scene, canvas, UI labels, root pane
-        // TODO: set up event handlers
-        // TODO: initialize gameObjects list with player
-        // TODO: create menu and switch to menu scene
-        // TODO: set up AnimationTimer game loop and start it
-        // TODO: show primaryStage
-
     }
     // Game mechanics stubs
     AnimationTimer timer;
@@ -117,10 +106,11 @@ public class SpaceShooter extends Application {
     }
     
     long HUMAN_MODE = 60; 
-    long AI_MODE = 1000; 
-    long FPNS = 1_000_000_000 / AI_MODE;
+    long AI_MODE = 3_000; 
+    long FPNS = 1_000_000_000 / AI_MODE;  // SET FRAME PER NANOSECOND 
     public Thread updateThread=null;
     
+    int steps = 0;
     public void updateThread() {
         updateThread = new Thread(() -> {
             long lastUpdateTime = System.nanoTime();
@@ -132,14 +122,16 @@ public class SpaceShooter extends Application {
                 lag += delta;
 
                 while (lag >= FPNS) {
-                    gameupdate();
+                    if (!gameOver){ gameupdate();
+                        System.out.println(steps);
+                        steps++;
+                    }
                     lag -= FPNS;
                 }
                 if (lag > 0) {
                     try {
                         Thread.sleep(1);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         Thread.currentThread().interrupt();
                     }
                 }
@@ -149,7 +141,8 @@ public class SpaceShooter extends Application {
 
         updateThread.start();
     }
-    public void stopUpdateThread() {
+
+    public void stopUpdateThread() {     //! khong bao gio dung thread java nua
     if (updateThread != null) {
         gameRunning = false; 
         
@@ -158,16 +151,12 @@ public class SpaceShooter extends Application {
         try {
             updateThread.join();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } 
         updateThread = null;
     }
 }
     
-    public void step(GraphicsContext gc, double elapsedTime, int action) {
-        this.Action(action);
-    }
     
     protected void gamerender(GraphicsContext gc) {
         ImagePattern uni = new ImagePattern(new Image("/universe.jpg"));
@@ -209,68 +198,55 @@ public class SpaceShooter extends Application {
     }
     
     protected void gameupdate() {
-        if (!gameOver) {
-            if (!bossExists)
-                spawnEnemy();
-            if (score!=0&&score %20 == 0 && !bossExists) {
-                spawnBossEnemy();
-            }
-            if (up == null)
-                spawnPowerUp();
-            for (int i = enemies.size() - 1; i >= 0; i--) {
-                enemies.get(i).update();
-            }
-            for (int i = bullets.size() - 1; i >= 0; i--) {
-                bullets.get(i).update();
-            }
-            if (!up.isEmpty()) {
-                up.get(0).update();
-                if (up.get(0).isDead())
-                    up.remove(0);
-            }
-            if (bossExists && boss != null) {
-                boss.update();
-                bossExists = !boss.isDead();
-                if (boss.health == 40 && moon.size() < 2)
-                    boss.phase(moon, 2);
-                if (boss.health == 30 && moon.size() < 4)
-                    boss.phase(moon, 4);
-                if (boss.health == 20 && moon.size() < 6)
-                    boss.phase(moon, 6);
-                if (boss.health == 10 && moon.size() < 10)
-                    boss.phase(moon, 10);
-                boss.shoot(eBullets);
-                for (int i = eBullets.size() - 1; i >= 0; i--) {
-                    eBullets.get(i).update();
-                }
-                for (int i = moon.size() - 1; i >= 0; i--) {
-                    moon.get(i).up(boss);
-                }
-                eBullets.removeIf(b -> b == null || b.isDead());
-                moon.removeIf(b -> b == null || b.isDead());
-            }
-            if (boss != null && boss.exploding) {
-                for (int i = eBullets.size() - 1; i >= 0; i--) {
-                    eBullets.get(i).setDead(true);;
-                }
-                for (int i = moon.size() - 1; i >= 0; i--) {
-                    moon.get(i).setDead(true);;
-                    
-                }
-            }
-            if (boss != null && boss.isDead()) {
-                boss = null;
-                bossExists = false;
-            }
-            checkEnemiesReachingBottom();
-            checkCollisions();
-            spawnPowerUp();
-            player.update();
-            if (player.shooting)
-                player.shoot(bullets);
-            enemies.removeIf(b -> b == null || b.isDead());
-            bullets.removeIf(b -> b == null || b.isDead());
+        if (!bossExists) spawnEnemy();
+        if (score!= 0&& score %40 == 0 && !bossExists) spawnBossEnemy();
+        if (up == null) spawnPowerUp();
+
+
+        enemies.forEach(e->e.update());
+        bullets.forEach(b->b.update());
+        if (!up.isEmpty()) {
+            up.get(0).update();
+            if (up.get(0).isDead())
+                up.remove(0);
         }
+        if (bossExists && boss != null) {
+            boss.update();
+            bossExists = !boss.isDead();
+            if (boss.health == 40 && moon.size() < 2)
+                boss.phase(moon, 2);
+            if (boss.health == 30 && moon.size() < 4)
+                boss.phase(moon, 4);
+            if (boss.health == 20 && moon.size() < 6)
+                boss.phase(moon, 6);
+            if (boss.health == 10 && moon.size() < 10)
+                boss.phase(moon, 10);
+            boss.shoot(eBullets);
+            for (int i = eBullets.size() - 1; i >= 0; i--) {
+                eBullets.get(i).update();
+            }
+            for (int i = moon.size() - 1; i >= 0; i--) {
+                moon.get(i).up(boss);
+            }
+            eBullets.removeIf(b -> b == null || b.isDead());
+            moon.removeIf(b -> b == null || b.isDead());
+        }
+        if (boss != null && boss.exploding) {
+            for (int i = eBullets.size() - 1; i >= 0; i--) {
+                eBullets.get(i).setDead(true);;
+            }
+            for (int i = moon.size() - 1; i >= 0; i--) {
+                moon.get(i).setDead(true);;
+                
+            }
+        }
+        checkEnemiesReachingBottom();
+        checkCollisions();
+        spawnPowerUp();
+        player.update();
+        if (player.shooting) player.shoot(bullets);
+        enemies.removeIf(b -> b == null || b.isDead());
+        bullets.removeIf(b -> b == null || b.isDead());
     }
 
     private void spawnEnemy() {
@@ -417,7 +393,6 @@ public class SpaceShooter extends Application {
     // Load FXML
 
     public void resetGame() {
-        // TODO: reset gameObjects, lives, score and switch back to game scene
         stopUpdateThread();
         gameRunning = true;
         enemies = new ArrayList<>();
@@ -523,6 +498,7 @@ public class SpaceShooter extends Application {
     }
 
     public void Action(int action){
+        // gameupdate();        //!sync wiht Agent loop
         switch (action) {
             case 0: {
                 player.setMoveRight(false);
@@ -560,7 +536,7 @@ public class SpaceShooter extends Application {
             bosshealth = boss.getHealth();
         else
             bosshealth = 50;
-        reward = (player.getHealth()-20)*3+score+(50-bosshealth);
+        reward = (player.getHealth()-20)*3+score*2+(50-bosshealth);
         return reward;
         
     }
@@ -579,60 +555,61 @@ public class SpaceShooter extends Application {
     public boolean getGameRunning() {
         return gameRunning;
     }
-    public List<List<Double>> getEnemies() {
-        List<List<Double>> ene = new ArrayList<>();
-        for (  Enemy n : enemies) {
-            List<Double> row1 = new ArrayList<>();
-            row1.add(n.getX());
-            row1.add(n.getY());
-            ene.add(row1);
+    public double[][] getEnemies() {
+        double[][] arr = new double[10][2];
+        for (int i = 0; i < Math.min(enemies.size(),10); i++) {
+            Enemy e = enemies.get(i);
+            arr[i][0] = e.getX();
+            arr[i][1] = e.getY();
         }
-        return ene;
+        return arr;
     }
 
-    public List<Double> getBoss() {
-        List<Double> row1 = new ArrayList<>();
-        row1.add(boss.getX());
-        row1.add(boss.getY());
-        return row1;
+    public double[] getBoss() {
+        if(boss==null){
+            double[] a ={-1,-1};
+            return a;
+        }
+        double[] arr = new double[2];
+        arr[0] = boss.getX();
+        arr[1] = boss.getY();
+        return arr;
     }
 
-    public List<List<Double>> getBullets() {
-        List<List<Double>> ene = new ArrayList<>();
-        for (  Bullet n : bullets) {
-            List<Double> row1 = new ArrayList<>();
-            row1.add(n.getX());
-            row1.add(n.getY());
-            ene.add(row1);
-        }
-        return ene;
-    }
 
     public Player getPlayer() {
         return player;
     }
 
-    public List<Satellite> getMoon() {
-        return moon;
-    }
-    public List<List<Double>> geteBullets() {
-        List<List<Double>> ene = new ArrayList<>();
-        for (  EnemyBullet n : eBullets) {
-            List<Double> row1 = new ArrayList<>();
-            row1.add(n.getX());
-            row1.add(n.getY());
-            ene.add(row1);
+    public double[][] getMoon() {
+        if(boss==null)
+            return new double[10][2];
+        double[][] arr = new double[10][2];
+        for (int i = 0; i < moon.size(); i++) {
+            Satellite e = moon.get(i);
+            arr[i][0] = e.getX();
+            arr[i][1] = e.getY();
         }
-        return ene;
+        return arr;
     }
-    public List<List<Double>> getUp() {
-        List<List<Double>> ene = new ArrayList<>();
-        for (  PowerUp n : up) {
-            List<Double> row1 = new ArrayList<>();
-            row1.add(n.getX());
-            row1.add(n.getY());
-            ene.add(row1);
+    public double[][] geteBullets() {
+        if(boss==null)
+            return new double[20][2];
+        double[][] arr = new double[20][2];
+        for (int i = 0; i < Math.min(bullets.size(),20); i++) {
+            Bullet e = bullets.get(i);
+            arr[i][0] = e.getX();
+            arr[i][1] = e.getY();
         }
-        return ene;
+        return arr;
+    }
+    public double[][] getUp() {
+        double[][] arr = new double[1][2];
+        for (int i = 0; i < up.size(); i++) {
+            PowerUp e = up.get(i);
+            arr[i][0] = e.getX();
+            arr[i][1] = e.getY();
+        }
+        return arr;
     }
 }

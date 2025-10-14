@@ -1,6 +1,5 @@
 gamestate/EventHandler.class
 gamestate/Menu.class
-agent/Data_etc.class
 gamestate/Instruction.class
 gamestate/Losing.class
 entities/Bullet.class

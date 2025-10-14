@@ -48,7 +48,6 @@ public class EnemyBullet extends GameObject {
      */
     @Override
     public void render(GraphicsContext gc) {
-        // TODO: draw bullet (e.g., filled rectangle or sprite)
            if (exploding) {
             gc.drawImage(EXPLOSION_IMAGE, explosionStep % 3 * 128, (explosionStep / 3) * 128 + 1, 128, 128, x, y, 30,
                     30);

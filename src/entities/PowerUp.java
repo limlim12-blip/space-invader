@@ -73,7 +73,6 @@ public class PowerUp extends GameObject {
      */
     @Override
     public boolean isDead() {
-        // TODO: return dead flag
         return dead;
     }
 
@@ -82,7 +81,6 @@ public class PowerUp extends GameObject {
      * @param dead true if should be removed
      */
     public void setDead(boolean dead) {
-        // TODO: update dead flag
         this.dead = dead;
     }
 }
