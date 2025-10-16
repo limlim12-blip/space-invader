@@ -1,4 +1,6 @@
 
+
+
 import time
 import gymnasium as gym
 from gymnasium import Env
@@ -13,7 +15,11 @@ class SpaceInvaderEnv(gym.Env):
         super(SpaceInvaderEnv, self).__init__()
 
         self.gateway = JavaGateway(gateway_parameters=GatewayParameters(port=25333))
-        self.game_java = self.gateway.entry_point
+        try:
+            self.game_java = self.gateway.entry_point
+        finally:
+            self.gateway.close()
+        print("env init")
 
         self.observation_space = spaces.Dict(
             {
@@ -31,10 +37,7 @@ class SpaceInvaderEnv(gym.Env):
 
         #[0: stay, 1: move left, 2: move right, 3: shoot]
         self.action_space = spaces.Discrete(4)
-
-        self.state = None
         self.steps=0
-
 
     def get_obs(self):
         self.player = self.game_java.getPlayer()#return player
@@ -64,16 +67,17 @@ class SpaceInvaderEnv(gym.Env):
 
 
         # Compute reward
-        reward = self.get_reward()
+        reward = int(self.get_reward())
 
         # Check done
         done = bool(self.game_java.getGameOver())
         self.steps+=1
-        info = {self.steps}
+        info = {}
+        self.state = self.get_obs()
 
-        return self.get_obs, reward, done, False, info
+        return self.state, reward, done, False, info
 
-    def reset(self, seed = None):
+    def reset(self, seed = None, options = None):
         """Reset the Java game and return initial state."""
         super().reset(seed=seed)
         self.game_java.startGame()

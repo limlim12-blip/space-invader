@@ -1,5 +1,5 @@
 package gamestate;
-import py4j.GatewayServer;
+// import py4j.GatewayServer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +32,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import py4j.GatewayServer;
+
 
 /**
  * Skeleton for SpaceShooter. Students must implement game loop,
@@ -41,7 +43,6 @@ public class SpaceShooter extends Application {
 
     public static final int WIDTH = 500;
     public static final int HEIGHT = 800;
-    public static int numLives = 3;
     private boolean bossExists=false;
     private int score;
     private int levelUpShown;
@@ -69,6 +70,7 @@ public class SpaceShooter extends Application {
     StackPane root = new StackPane(canvas);
     Scene gameScene = new Scene(root);
 
+    GatewayServer gatewayServer;
     @Override
     public void start(Stage primaryStage) throws Exception {
         // This is where you add scenes, layouts, and widgets
@@ -78,9 +80,16 @@ public class SpaceShooter extends Application {
         window.setScene(new Scene(createMenu()));
         window.setResizable (false);
         window.show();
-        GatewayServer gatewayServer = new GatewayServer(this, 25333);
+        gatewayServer = new GatewayServer(this,25333);
         System.out.println("Gateway Server Started");
         gatewayServer.start();
+    }
+    @Override
+    public void stop() {
+        if (gatewayServer != null) {
+            gatewayServer.shutdown();
+            System.out.println("Py4J Gateway stopped.");
+        }
     }
     // Game mechanics stubs
     AnimationTimer timer;
@@ -99,6 +108,7 @@ public class SpaceShooter extends Application {
                         }
                     }
                     gamerender(gc);
+                    gamerender(gc);
             }
         };
         timer.start();
@@ -106,7 +116,7 @@ public class SpaceShooter extends Application {
     }
     
     long HUMAN_MODE = 60; 
-    long AI_MODE = 3_000; 
+    long AI_MODE = 300; 
     long FPNS = 1_000_000_000 / AI_MODE;  // SET FRAME PER NANOSECOND 
     public Thread updateThread=null;
     
@@ -123,7 +133,6 @@ public class SpaceShooter extends Application {
 
                 while (lag >= FPNS) {
                     if (!gameOver){ gameupdate();
-                        System.out.println(steps);
                         steps++;
                     }
                     lag -= FPNS;
@@ -248,17 +257,28 @@ public class SpaceShooter extends Application {
         enemies.removeIf(b -> b == null || b.isDead());
         bullets.removeIf(b -> b == null || b.isDead());
     }
-
     private void spawnEnemy() {
-        if (Math.random() < 0.01 + (0.25 * Math.tanh(score / 1000.0))) {
-            enemies.add(new Enemy(new Random().nextInt(470) + 2, 0));
-        }
+        Random rand = new Random();
+        double spawnChance = 0.01 + 0.15 * Math.tanh(score / 800.0);
 
+        spawnChance += 0.01 * Math.sin(steps / 300.0);
+
+        if (rand.nextDouble() < spawnChance) {
+            int x = rand.nextInt(470) + 2; 
+            int y = 0;
+            if (rand.nextDouble() < 0.1) { 
+                for (int i = 0; i < 2+ rand.nextInt(2); i++) {
+                    enemies.add(new Enemy(x + rand.nextInt(30) - 40, y - i * 20));
+                }
+            } else {
+                enemies.add(new Enemy(x, 0));
+            }
+        }
     }
 
     private void spawnPowerUp() {
         if ((score+1)%3==0&&up.isEmpty()) {
-            up.add(new PowerUp(new Random().nextInt(325) + 2, new Random().nextInt(50) + 600));
+            up.add(new PowerUp(new Random().nextInt(325) + 2, 0));
         }
     }
 
@@ -321,6 +341,7 @@ public class SpaceShooter extends Application {
                         if(Math.random()<0.1) score++;
                         bullet.setExploding(true);
                         boss.takeDamage();
+                        score++;
                     }
 
                 }
@@ -530,13 +551,17 @@ public class SpaceShooter extends Application {
 
     int reward = 0;
     
+    int health=20;
     public int getReward() {
-        int bosshealth = 50;
-        if (boss!=null)
-            bosshealth = boss.getHealth();
-        else
-            bosshealth = 50;
-        reward = (player.getHealth()-20)*3+score*2+(50-bosshealth);
+        reward = score * 20+ steps/1000; 
+        if (player.getHealth() - health>0) {
+            reward = (health - player.getHealth())*10;
+            health=player.getHealth();
+        }
+        else if(player.getHealth()-health<0){
+            reward = (health - player.getHealth())*5;
+            health=player.getHealth();
+        }
         return reward;
         
     }
